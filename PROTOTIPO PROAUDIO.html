@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototipo PROAUDIO — validación (datos ficticios)</title>
+<!--
+  ===========================================================================
+  PROTOTIPO DE VALIDACIÓN · PROAUDIO IBARRA · v0.1-html
+  ---------------------------------------------------------------------------
+  Maqueta navegable en un solo archivo. Equivalente funcional a la versión
+  Next.js del mismo proyecto.
+
+  · Datos exclusivamente ficticios.
+  · Sin base de datos, sin autenticación, sin Google Calendar, sin WhatsApp,
+    sin correo, sin almacenamiento de archivos, sin llamadas a servidores.
+  · Funciona sin conexión a internet: no carga ninguna librería externa.
+  · El estado vive en la memoria del navegador y se reinicia al recargar (F5).
+  ===========================================================================
+-->
+<style>
+:root{
+  --marca-50:#f0f7f7; --marca-100:#d9ecec; --marca-600:#1f6f6f; --marca-700:#175757; --marca-800:#124646;
+  --s50:#f8fafc; --s100:#f1f5f9; --s200:#e2e8f0; --s300:#cbd5e1; --s400:#94a3b8;
+  --s500:#64748b; --s600:#475569; --s700:#334155; --s800:#1e293b;
+  --am50:#fffbeb; --am100:#fef3c7; --am200:#fde68a; --am300:#fcd34d; --am700:#b45309; --am800:#92400e; --am900:#78350f;
+  --em50:#ecfdf5; --em100:#d1fae5; --em300:#6ee7b7; --em400:#34d399; --em500:#10b981; --em800:#065f46;
+  --ro50:#fff1f2; --ro100:#ffe4e6; --ro300:#fda4af; --ro600:#e11d48; --ro700:#be123c; --ro800:#9f1239;
+  --sk50:#f0f9ff; --sk300:#7dd3fc; --sk400:#38bdf8; --sk500:#0ea5e9; --sk800:#075985;
+  --vi50:#f5f3ff; --vi300:#c4b5fd; --vi500:#8b5cf6; --vi800:#5b21b6;
+  --te500:#14b8a6; --in500:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:var(--s100); color:var(--s800); font-size:16px; line-height:1.5;
+}
+svg{display:block;flex:none}
+button{font:inherit;cursor:pointer;background:none;border:none;color:inherit}
+a{color:inherit;text-decoration:none}
+input,select,textarea{font:inherit}
+
+/* ── Franja de aviso permanente ─────────────────────────────────────────── */
+.aviso-global{
+  background:var(--am50); border-bottom:1px solid var(--am200); color:var(--am800);
+  text-align:center; padding:5px 12px; font-size:11px; font-weight:700; letter-spacing:.04em;
+}
+
+/* ── Cabecera ───────────────────────────────────────────────────────────── */
+header.top{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid var(--s200);box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.top-inner{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;padding:12px 16px}
+.logo{font-size:18px;font-weight:800;color:var(--marca-700);line-height:1.15}
+.logo small{display:block;font-size:11px;font-weight:400;color:var(--s500)}
+nav.menu{display:flex;flex:1;flex-wrap:wrap;gap:4px}
+nav.menu a{display:flex;align-items:center;gap:6px;border-radius:8px;padding:8px 12px;font-size:14px;font-weight:600;color:var(--s600)}
+nav.menu a:hover{background:var(--s100);color:var(--s800)}
+nav.menu a.activo{background:var(--marca-50);color:var(--marca-700)}
+.buscador{position:relative}
+.buscador svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--s400);pointer-events:none}
+.buscador input{width:230px;border:1px solid var(--s300);background:var(--s50);border-radius:999px;padding:8px 12px 8px 34px;font-size:14px}
+.buscador input:focus{outline:none;border-color:var(--marca-600);box-shadow:0 0 0 1px var(--marca-600)}
+.usuario{display:flex;align-items:center;gap:8px;text-align:right}
+.usuario b{display:block;font-size:14px;color:var(--s700)}
+.usuario span{display:block;font-size:11px;color:var(--s400)}
+.avatar{width:36px;height:36px;border-radius:999px;background:var(--marca-100);color:var(--marca-700);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+
+main{max-width:1100px;margin:0 auto;padding:20px 16px 64px}
+.pila>*+*{margin-top:16px}
+.pila-sm>*+*{margin-top:8px}
+
+/* ── Piezas ─────────────────────────────────────────────────────────────── */
+.tarjeta{border:1px solid var(--s200);background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.tarjeta.p0{padding:0}
+h1.t{font-size:22px;font-weight:800;color:var(--s800)}
+h2.t2{font-size:16px;font-weight:700;color:var(--s700);margin-bottom:10px}
+.sub{font-size:14px;color:var(--s500)}
+.fila{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.fila-sep{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.rejilla2{display:grid;gap:16px}
+@media(min-width:900px){.rejilla2{grid-template-columns:1fr 1fr}}
+.rejilla4{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(min-width:640px){.rejilla4{grid-template-columns:repeat(4,1fr)}}
+.campos2{display:grid;gap:12px}
+@media(min-width:560px){.campos2{grid-template-columns:1fr 1fr}}
+.ancho2{grid-column:1/-1}
+
+.btn-primario{display:inline-flex;align-items:center;gap:8px;border-radius:8px;background:var(--marca-700);color:#fff;padding:10px 16px;font-size:14px;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.btn-primario:hover{background:var(--marca-800)}
+.btn-secundario{display:inline-flex;align-items:center;gap:8px;border-radius:8px;border:1px solid var(--s300);background:#fff;color:var(--s700);padding:10px 16px;font-size:14px;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.btn-secundario:hover{background:var(--s50)}
+.btn-suave{display:inline-flex;align-items:center;gap:6px;border-radius:6px;border:1px solid var(--s200);background:#fff;color:var(--s600);padding:6px 10px;font-size:12px;font-weight:500}
+.btn-suave:hover{background:var(--s50);color:var(--s800)}
+.rojo{color:var(--ro700)}
+.ancho-total{width:100%;justify-content:center}
+.enlace{font-size:14px;font-weight:600;color:var(--marca-700)}
+.enlace:hover{text-decoration:underline}
+
+.campo{width:100%;border:1px solid var(--s300);background:#fff;border-radius:8px;padding:8px 12px;font-size:14px;color:var(--s800)}
+.campo:focus{outline:none;border-color:var(--marca-600);box-shadow:0 0 0 1px var(--marca-600)}
+.campo.auto{width:auto}
+textarea.campo{resize:vertical}
+.etiqueta{display:block;margin-bottom:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--s500)}
+.aviso-campo{margin-top:4px;font-size:10px;color:var(--am700)}
+.ayuda{margin-top:4px;font-size:11px;color:var(--s500)}
+
+.insignia{display:inline-flex;align-items:center;gap:4px;border-radius:999px;border:1px solid;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap}
+.i-agendada{background:var(--s100);color:var(--s700);border-color:var(--s300)}
+.i-confirmada{background:var(--em50);color:var(--em800);border-color:var(--em300)}
+.i-completada{background:var(--sk50);color:var(--sk800);border-color:var(--sk300)}
+.i-noatendida{background:var(--ro50);color:var(--ro800);border-color:var(--ro300)}
+.i-cancelada{background:var(--s100);color:var(--s500);border-color:var(--s300);text-decoration:line-through}
+.i-reagendada{background:var(--vi50);color:var(--vi800);border-color:var(--vi300)}
+.i-neutra{background:var(--s50);color:var(--s600);border-color:var(--s300);font-weight:500}
+.i-ambar{background:var(--am50);color:var(--am800);border-color:var(--am300);font-weight:500}
+.i-alta{background:var(--ro50);color:var(--ro800);border-color:var(--ro300)}
+.i-media{background:var(--am50);color:var(--am800);border-color:var(--am300)}
+.i-baja{background:var(--s100);color:var(--s600);border-color:var(--s300)}
+.i-verde{background:var(--em50);color:var(--em800);border-color:var(--em300)}
+.i-azul{background:var(--sk50);color:var(--sk800);border-color:var(--sk300)}
+.i-violeta{background:var(--vi50);color:var(--vi800);border-color:var(--vi300)}
+.etq-nuevo{border-radius:4px;background:var(--em100);color:var(--em800);padding:2px 6px;font-size:10px;font-weight:700}
+.etq-cod{border-radius:4px;background:var(--s100);color:var(--s500);padding:2px 8px;font-size:11px;font-weight:700}
+
+.alerta{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--am300);background:var(--am50);color:var(--am900);border-radius:8px;padding:8px 12px;font-size:14px}
+.alerta svg{margin-top:2px;color:var(--am800)}
+.vacio{border:1px dashed var(--s300);background:var(--s50);border-radius:8px;padding:22px 16px;text-align:center;font-size:14px;color:var(--s500)}
+.nota-gris{border-radius:8px;background:var(--s50);padding:8px 12px;font-size:12px;color:var(--s500)}
+
+.kpi{text-align:center}
+.kpi b{display:block;font-size:30px;font-weight:800;color:var(--marca-700);line-height:1.1}
+.kpi span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--s500)}
+
+.lista-div>*{border-bottom:1px solid var(--s100)}
+.lista-div>*:last-child{border-bottom:none}
+.item-lista{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;padding:10px 4px;text-align:left}
+.item-lista:hover{background:var(--s50)}
+.hora-col{width:46px;font-size:14px;font-weight:700;color:var(--s700);flex:none}
+
+.pestanias{display:flex;flex-wrap:wrap;gap:4px;border:1px solid var(--s200);background:#fff;border-radius:12px;padding:4px}
+.pestanias button{border-radius:8px;padding:8px 14px;font-size:14px;font-weight:600;color:var(--s600)}
+.pestanias button:hover{background:var(--s100)}
+.pestanias button.on{background:var(--marca-700);color:#fff}
+.pestanias button.on:hover{background:var(--marca-700)}
+.grupo-btn{display:flex;overflow:hidden;border:1px solid var(--s300);background:#fff;border-radius:8px}
+.grupo-btn button{padding:8px 16px;font-size:14px;font-weight:600;color:var(--s600)}
+.grupo-btn button:hover{background:var(--s50)}
+.grupo-btn button.on{background:var(--marca-700);color:#fff}
+.chip{border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;background:var(--s100);color:var(--s600)}
+.chip:hover{background:var(--s200)}
+.chip.on{background:var(--marca-700);color:#fff}
+
+/* ── Agenda ─────────────────────────────────────────────────────────────── */
+.scroll-x{overflow-x:auto}
+table.agenda{width:100%;min-width:560px;table-layout:fixed;border-collapse:collapse}
+table.agenda th{background:var(--s50);border-bottom:1px solid var(--s200);padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--s500)}
+table.agenda th.h{width:64px}
+table.agenda td{border-bottom:1px solid var(--s100);padding:4px 8px;vertical-align:top}
+table.agenda td.h{padding:6px 12px;font-size:11px;font-weight:700;color:var(--s400)}
+.bloque-cita{display:block;width:100%;text-align:left;margin-bottom:4px;border-radius:8px;border-left:4px solid;padding:8px 12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.bloque-cita:hover{box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.bloque-cita b{display:block;font-size:14px;font-weight:600;color:var(--s800)}
+.bloque-cita .m{margin-top:2px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--s500)}
+.tenue{opacity:.5}
+.semana{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:700px){.semana{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1000px){.semana{grid-template-columns:repeat(6,1fr)}}
+.dia-hoy{box-shadow:0 0 0 2px var(--marca-600)}
+.mes-cab,.mes-rej{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;min-width:560px}
+.mes-cab div{padding:4px 0;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--s400)}
+.celda-mes{min-height:64px;border:1px solid var(--s200);background:#fff;border-radius:8px;padding:8px;text-align:left;font-size:14px}
+.celda-mes:hover{border-color:var(--marca-600)}
+.celda-mes.hoy{border-color:var(--marca-600);background:var(--marca-50)}
+.celda-mes b{font-weight:600;color:var(--s700)}
+.pastilla{margin-top:4px;display:inline-block;border-radius:999px;background:var(--marca-100);color:var(--marca-700);padding:2px 8px;font-size:11px;font-weight:600}
+
+/* ── Línea de tiempo ────────────────────────────────────────────────────── */
+ol.tl{position:relative;margin-left:8px;border-left:2px solid var(--s200);padding-left:20px;list-style:none}
+ol.tl li{position:relative;padding-bottom:16px}
+ol.tl li:last-child{padding-bottom:0}
+ol.tl .punto{position:absolute;left:-27px;top:6px;width:12px;height:12px;border-radius:999px;box-shadow:0 0 0 4px #fff}
+ol.tl .cab{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--s400)}
+ol.tl .tit{font-size:14px;font-weight:600;color:var(--s800)}
+ol.tl .det{margin-top:2px;font-size:14px;color:var(--s600)}
+ol.tl .aut{margin-top:2px;font-size:11px;color:var(--s400)}
+
+/* ── Fichas de paciente en lista ────────────────────────────────────────── */
+a.ficha-item{display:block}
+a.ficha-item .tarjeta:hover{border-color:var(--marca-600);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+
+/* ── Recordatorios ──────────────────────────────────────────────────────── */
+.rec-atrasado{border-color:var(--ro300)}
+.rec-destacado{box-shadow:0 0 0 2px var(--marca-600)}
+.etq-atraso{border-radius:999px;background:var(--ro100);color:var(--ro700);padding:2px 8px;font-size:11px;font-weight:700}
+.acciones-rec{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--s100);padding-top:10px}
+
+/* ── Modales y panel lateral ────────────────────────────────────────────── */
+.fondo{position:fixed;inset:0;z-index:50;background:rgba(15,23,42,.4);overflow-y:auto;display:flex;justify-content:center;align-items:flex-start;padding:16px}
+.caja{width:100%;max-width:640px;background:#fff;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,.25);margin-top:24px;margin-bottom:24px}
+.caja.chica{max-width:440px}
+.caja-cab{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--s200);padding:14px 20px}
+.caja-cab h2{font-size:16px;font-weight:700;color:var(--s800)}
+.caja-cuerpo{padding:16px 20px}
+.caja-cuerpo>*+*{margin-top:14px}
+.cerrar{border-radius:6px;padding:4px;color:var(--s400)}
+.cerrar:hover{background:var(--s100);color:var(--s600)}
+.pie-modal{display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--s200);padding-top:12px}
+.panel-fondo{position:fixed;inset:0;z-index:50;background:rgba(15,23,42,.3);display:flex;justify-content:flex-end}
+.panel{height:100%;width:100%;max-width:420px;background:#fff;padding:20px;overflow-y:auto;box-shadow:-8px 0 30px rgba(0,0,0,.2)}
+.caja-gris{border:1px solid var(--s200);background:var(--s50);border-radius:8px;padding:12px}
+.caja-gris .tit-mini{margin-bottom:8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--s500)}
+.opcion{display:flex;align-items:center;gap:8px;border:1px solid var(--s200);background:#fff;border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer}
+.opcion.on{border-color:var(--marca-600);background:var(--marca-50)}
+.opciones-rej{display:grid;gap:6px}
+@media(min-width:560px){.opciones-rej{grid-template-columns:1fr 1fr}}
+.linea-radio{display:flex;align-items:center;gap:8px;font-size:14px;padding:3px 0;cursor:pointer}
+.zona-archivo{display:flex;width:100%;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:2px dashed var(--s300);background:var(--s50);border-radius:12px;padding:22px 16px;font-size:14px;color:var(--s500)}
+.zona-archivo:hover{border-color:var(--marca-600)}
+.zona-archivo.puesto{border-color:var(--em300);background:var(--em50);color:var(--em800)}
+.aviso-dup{border:1px solid var(--am300);background:var(--am50);border-radius:8px;padding:12px}
+.dup-item{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;background:#fff;border-radius:6px;padding:8px 12px;font-size:14px;margin-bottom:6px}
+.error{font-size:14px;font-weight:600;color:var(--ro700)}
+.plegable{border:1px solid var(--s200);border-radius:8px}
+.plegable>button{display:flex;width:100%;align-items:center;justify-content:space-between;padding:10px 12px;font-size:14px;font-weight:600;color:var(--s600)}
+.plegable .cuerpo{border-top:1px solid var(--s200);padding:12px}
+.res-busq{margin-top:4px;border:1px solid var(--s200);background:#fff;border-radius:8px}
+.res-busq button{display:block;width:100%;padding:8px 12px;text-align:left;font-size:14px;border-bottom:1px solid var(--s100)}
+.res-busq button:last-child{border-bottom:none}
+.res-busq button:hover{background:var(--s50)}
+.g-vigente{background:var(--em50);color:var(--em800)}
+.g-porvencer{background:var(--am50);color:var(--am800)}
+.g-vencida{background:var(--ro50);color:var(--ro800)}
+.caja-garantia{margin-top:6px;border-radius:6px;padding:6px 8px;font-size:12px;font-weight:600}
+.caja-garantia span{display:block;font-weight:400;color:var(--s500)}
+.pie-nota{text-align:center;font-size:12px;color:var(--s400);padding-top:8px}
+dl.datos>div+div{margin-top:10px}
+dl.datos dt{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--s400)}
+dl.datos dd{font-size:14px;color:var(--s700)}
+dl.datos dd.fuerte{font-weight:600;color:var(--s800)}
+.mini{font-size:12px;color:var(--s500)}
+.mini2{font-size:11px;color:var(--s400)}
+.doc-item{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--s200);border-radius:8px;padding:12px;font-size:14px}
+.equipo-item{border:1px solid var(--s200);border-radius:8px;padding:12px;font-size:14px;margin-bottom:8px}
+@media print{.no-imprimir{display:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+"use strict";
+/* =========================================================================
+   1. DATOS FICTICIOS
+   ========================================================================= */
+var HOY = "2026-08-01";
+var USUARIA_ACTUAL = "M. Salgado";
+
+var MOTIVOS_CITA = ["Primera consulta","Control periódico","Audiometría","Adaptación de audífono",
+  "Entrega de equipo","Mantenimiento / limpieza","Recepción de reparación","Otro"];
+var TIPOS_ATENCION = ["Control periódico","Primera evaluación","Audiometría","Adaptación de audífono",
+  "Entrega de equipo","Mantenimiento / limpieza","Revisión por garantía","Otro"];
+var TIPOS_DOCUMENTO = ["Cartilla física","Resultado de audiometría","Certificado de garantía",
+  "Factura o comprobante","Examen externo","Orden médica","Otro"];
+var COMO_CONOCIO = ["Referido por un paciente","Referido por un médico","Redes sociales","Pasó por el local","Otro"];
+var RESULTADOS_CONTACTO = ["Contactado","No respondió","Agendó cita","Solicita llamada posterior",
+  "No desea ser contactado","Número incorrecto","Otro"];
+
+var SUCURSALES = [
+  {id:"SUC-01", nombre:"Ibarra Centro", ciudad:"Ibarra"},
+  {id:"SUC-02", nombre:"Sucursal Norte", ciudad:"Ibarra"}
+];
+
+var PROFESIONALES = [
+  {id:"PRO-01", nombre:"Aud. Carmen Villacís", nombreCorto:"C. Villacís", rol:"Audióloga",
+   sucursalId:"SUC-01", borde:"var(--sk400)", fondo:"var(--sk50)", atiende:true},
+  {id:"PRO-02", nombre:"Aud. Paola Terán", nombreCorto:"P. Terán", rol:"Audióloga",
+   sucursalId:"SUC-01", borde:"var(--em400)", fondo:"var(--em50)", atiende:true},
+  {id:"PRO-03", nombre:"Mónica Salgado", nombreCorto:"M. Salgado", rol:"Recepcionista",
+   sucursalId:"SUC-01", borde:"var(--s300)", fondo:"var(--s50)", atiende:false},
+  {id:"PRO-04", nombre:"Diego Peñafiel", nombreCorto:"D. Peñafiel", rol:"Administrador",
+   sucursalId:"SUC-01", borde:"var(--s300)", fondo:"var(--s50)", atiende:false}
+];
+
+var PACIENTES_SEMILLA = [
+  {id:"PAC-00412", nombres:"Rosa", apellidos:"Cabascango", telefono:"099-000-0001",
+   documento:"DOC-FICT-001", fichaFisica:"128", ciudad:"Ibarra", sucursalId:"SUC-01",
+   profesionalId:"PRO-01", categoria:"A", estado:"Activa", estadoDigitalizacion:"Parcial",
+   ubicacionArchivo:"Ibarra Centro · estante 4 · carpeta 128", ultimaVisita:"2026-04-28",
+   ultimaIndicacion:"Continuar con uso diario. Limpiar el molde cada semana. Volver a control en 3 meses.",
+   proximaAccion:"Control periódico · sugerido para agosto 2026",
+   alerta:"Garantía del audífono vence el 13 ago 2026 (fechas ficticias para validación visual)"},
+  {id:"PAC-01187", nombres:"Segundo", apellidos:"Chalá", telefono:"099-000-0002",
+   documento:"DOC-FICT-002", fichaFisica:"233", ciudad:"Ibarra", sucursalId:"SUC-01",
+   profesionalId:"PRO-02", categoria:"B",
+   estado:"Sin visita hace 14 meses — regla temporal por validar con Proaudio",
+   estadoDigitalizacion:"Datos básicos", ubicacionArchivo:"Ibarra Centro · estante 6 · carpeta 233",
+   ultimaVisita:"2025-05-15", ultimaIndicacion:"Revisar adaptación en 6 meses. Uso progresivo del equipo.",
+   proximaAccion:"Contactar: no registra visitas desde may 2025",
+   alerta:"Sin visita desde may 2025 (14 meses) — Regla temporal por validar con Proaudio"},
+  {id:"PAC-00976", nombres:"Marina", apellidos:"Pozo", telefono:"099-000-0003", ciudad:"Otavalo",
+   sucursalId:"SUC-01", profesionalId:"PRO-02", categoria:"A", estado:"Activa",
+   estadoDigitalizacion:"Completa para operar", ubicacionArchivo:"Ibarra Centro · estante 2 · carpeta 87",
+   fichaFisica:"87", ultimaVisita:"2026-02-12",
+   ultimaIndicacion:"Continuar uso habitual. Control en 6 meses.",
+   proximaAccion:"Control periódico · agosto 2026"},
+  {id:"PAC-01542", nombres:"Jorge", apellidos:"Almeida", telefono:"099-000-0004", ciudad:"Ibarra",
+   sucursalId:"SUC-01", profesionalId:"PRO-01", estado:"Paciente nuevo",
+   estadoDigitalizacion:"Sin digitalizar", proximaAccion:"Primera consulta hoy 10:30", esNuevo:true,
+   comoConocio:"Referido por un paciente", referidoPor:"Rosa Cabascango (PAC-00412)"},
+  {id:"PAC-00238", nombres:"Blanca", apellidos:"Yépez", telefono:"099-000-0005",
+   correo:"ejemplo@prototipo.invalid", ciudad:"Ibarra", sucursalId:"SUC-02", profesionalId:"PRO-02",
+   categoria:"S+", estado:"Activa", estadoDigitalizacion:"Parcial",
+   ubicacionArchivo:"Sucursal Norte · caja 3 · carpeta 41", fichaFisica:"41",
+   ultimaVisita:"2025-08-05", ultimaIndicacion:"Audiometría de control en un año.",
+   proximaAccion:"Audiometría anual · agosto 2026",
+   alerta:"Audiometría anual pendiente (plazo de ejemplo, por validar)"},
+  {id:"PAC-01903", nombres:"Luis", apellidos:"Ipiales", telefono:"099-000-0006", ciudad:"Atuntaqui",
+   sucursalId:"SUC-01", profesionalId:"PRO-01", categoria:"A", estado:"Activo",
+   estadoDigitalizacion:"Parcial", ubicacionArchivo:"Ibarra Centro · estante 5 · carpeta 310",
+   fichaFisica:"310", ultimaVisita:"2026-07-22",
+   ultimaIndicacion:"Dejó su equipo para reparación. Avisaremos cuando esté listo.",
+   proximaAccion:"Entrega de equipo reparado · cita 1 ago 12:00",
+   alerta:"Equipo reparado listo para entregar desde el 30 jul"},
+  {id:"PAC-00733", nombres:"María", apellidos:"Farinango", telefono:"099-000-0007", ciudad:"Cotacachi",
+   sucursalId:"SUC-02", profesionalId:"PRO-01", categoria:"B", estado:"Activa",
+   estadoDigitalizacion:"Datos básicos", fichaFisica:"412", ultimaVisita:"2026-05-13",
+   ultimaIndicacion:"Control en 3 meses.", proximaAccion:"Control periódico · mediados de agosto 2026"},
+  {id:"PAC-01050", nombres:"Antonio", apellidos:"Guamán", telefono:"099-000-0008", ciudad:"Ibarra",
+   sucursalId:"SUC-01", profesionalId:"PRO-02", estado:"Activo", estadoDigitalizacion:"Datos básicos",
+   fichaFisica:"509", ultimaVisita:"2025-08-20", ultimaIndicacion:"Audiometría de control en un año.",
+   proximaAccion:"Audiometría anual · agosto 2026"}
+];
+
+var CITAS_SEMILLA = [
+  {id:"CIT-101",pacienteId:"PAC-00412",fecha:HOY,hora:"09:00",duracionMin:30,profesionalId:"PRO-01",sucursalId:"SUC-01",motivo:"Control periódico",estado:"Confirmada"},
+  {id:"CIT-102",pacienteId:"PAC-00976",fecha:HOY,hora:"09:45",duracionMin:30,profesionalId:"PRO-02",sucursalId:"SUC-01",motivo:"Control periódico",estado:"Confirmada"},
+  {id:"CIT-103",pacienteId:"PAC-01542",fecha:HOY,hora:"10:30",duracionMin:45,profesionalId:"PRO-01",sucursalId:"SUC-01",motivo:"Primera consulta",estado:"Agendada"},
+  {id:"CIT-104",pacienteId:"PAC-01903",fecha:HOY,hora:"12:00",duracionMin:30,profesionalId:"PRO-01",sucursalId:"SUC-01",motivo:"Entrega de equipo",estado:"Confirmada"},
+  {id:"CIT-105",pacienteId:"PAC-00238",fecha:"2026-08-02",hora:"11:15",duracionMin:45,profesionalId:"PRO-02",sucursalId:"SUC-02",motivo:"Audiometría",estado:"Agendada"},
+  {id:"CIT-106",pacienteId:"PAC-00733",fecha:"2026-08-05",hora:"10:00",duracionMin:30,profesionalId:"PRO-01",sucursalId:"SUC-02",motivo:"Control periódico",estado:"Agendada"},
+  {id:"CIT-107",pacienteId:"PAC-01050",fecha:"2026-08-07",hora:"15:00",duracionMin:45,profesionalId:"PRO-02",sucursalId:"SUC-01",motivo:"Audiometría",estado:"Agendada"},
+  {id:"CIT-090",pacienteId:"PAC-00412",fecha:"2026-04-28",hora:"10:00",duracionMin:30,profesionalId:"PRO-01",sucursalId:"SUC-01",motivo:"Control periódico",estado:"Completada"},
+  {id:"CIT-080",pacienteId:"PAC-00412",fecha:"2025-12-12",hora:"11:00",duracionMin:30,profesionalId:"PRO-01",sucursalId:"SUC-01",motivo:"Control periódico",estado:"Completada"},
+  {id:"CIT-070",pacienteId:"PAC-00412",fecha:"2025-09-05",hora:"09:30",duracionMin:45,profesionalId:"PRO-02",sucursalId:"SUC-01",motivo:"Audiometría",estado:"Completada"},
+  {id:"CIT-060",pacienteId:"PAC-00412",fecha:"2025-06-20",hora:"10:00",duracionMin:30,profesionalId:"PRO-01",sucursalId:"SUC-01",motivo:"Control periódico",estado:"No atendida",motivoCambio:"No asistió. Sin aviso previo."},
+  {id:"CIT-050",pacienteId:"PAC-01187",fecha:"2025-05-15",hora:"09:00",duracionMin:30,profesionalId:"PRO-02",sucursalId:"SUC-01",motivo:"Control periódico",estado:"Completada"},
+  {id:"CIT-095",pacienteId:"PAC-01903",fecha:"2026-07-22",hora:"16:00",duracionMin:30,profesionalId:"PRO-01",sucursalId:"SUC-01",motivo:"Recepción de reparación",estado:"Completada"},
+  {id:"CIT-096",pacienteId:"PAC-00976",fecha:"2026-02-12",hora:"11:30",duracionMin:30,profesionalId:"PRO-02",sucursalId:"SUC-01",motivo:"Control periódico",estado:"Completada"},
+  {id:"CIT-097",pacienteId:"PAC-00238",fecha:"2025-08-05",hora:"10:30",duracionMin:45,profesionalId:"PRO-02",sucursalId:"SUC-02",motivo:"Audiometría",estado:"Completada"}
+];
+
+var ATENCIONES_SEMILLA = [
+  {id:"ATN-01",pacienteId:"PAC-00412",citaId:"CIT-090",fecha:"2026-04-28",profesionalId:"PRO-01",tipo:"Control periódico",
+   observacion:"Paciente refiere buena adaptación. Se revisa el equipo y se realiza limpieza. Sin novedades.",
+   indicacion:"Continuar con uso diario. Limpiar el molde cada semana. Volver a control en 3 meses.",
+   proximaAccion:"Control periódico",fechaSeguimiento:"2026-08-01",responsableId:"PRO-03"},
+  {id:"ATN-02",pacienteId:"PAC-00412",citaId:"CIT-080",fecha:"2025-12-12",profesionalId:"PRO-01",tipo:"Control periódico",
+   observacion:"Se ajusta programación. Paciente refiere mejoría en ambientes ruidosos.",
+   indicacion:"Continuar uso habitual.",proximaAccion:"Control periódico",fechaSeguimiento:"2026-04-28",responsableId:"PRO-03"},
+  {id:"ATN-03",pacienteId:"PAC-01187",citaId:"CIT-050",fecha:"2025-05-15",profesionalId:"PRO-02",tipo:"Control periódico",
+   observacion:"Adaptación en curso. Se recomienda uso progresivo del equipo.",
+   indicacion:"Revisar adaptación en 6 meses.",proximaAccion:"Control de adaptación",fechaSeguimiento:"2025-11-15",responsableId:"PRO-03"},
+  {id:"ATN-04",pacienteId:"PAC-00976",citaId:"CIT-096",fecha:"2026-02-12",profesionalId:"PRO-02",tipo:"Control periódico",
+   observacion:"Sin novedades. Equipo en buen estado.",
+   indicacion:"Continuar uso habitual. Control en 6 meses.",proximaAccion:"Control periódico",fechaSeguimiento:"2026-08-12",responsableId:"PRO-03"},
+  {id:"ATN-05",pacienteId:"PAC-00238",citaId:"CIT-097",fecha:"2025-08-05",profesionalId:"PRO-02",tipo:"Audiometría",
+   observacion:"Se realiza audiometría de control. Resultado adjunto (documento ficticio).",
+   indicacion:"Audiometría de control en un año.",proximaAccion:"Audiometría anual",fechaSeguimiento:"2026-08-05",responsableId:"PRO-03"},
+  {id:"ATN-06",pacienteId:"PAC-01903",citaId:"CIT-095",fecha:"2026-07-22",profesionalId:"PRO-01",tipo:"Recepción de reparación",
+   observacion:"Se recibe equipo con falla de ejemplo. Se envía a revisión técnica (simulado).",
+   indicacion:"Avisaremos cuando el equipo esté listo.",proximaAccion:"Entregar equipo reparado",fechaSeguimiento:"2026-08-01",responsableId:"PRO-03"}
+];
+
+var AUDIFONOS_SEMILLA = [
+  {id:"AUD-01",pacienteId:"PAC-00412",marca:"Marca Demo Uno",modelo:"Modelo Z-1",oido:"Derecho",serie:"SERIE-DEMO-001",
+   fechaEntrega:"2024-08-13",estado:"En uso",garantia:{inicio:"2024-08-13",vencimiento:"2026-08-13",estado:"Por vencer"}},
+  {id:"AUD-02",pacienteId:"PAC-01903",marca:"Marca Demo Dos",modelo:"Modelo K-4",oido:"Izquierdo",serie:"SERIE-DEMO-002",
+   fechaEntrega:"2025-03-01",estado:"En reparación (listo para entregar)",garantia:{inicio:"2025-03-01",vencimiento:"2027-03-01",estado:"Vigente"}},
+  {id:"AUD-03",pacienteId:"PAC-00238",marca:"Marca Demo Uno",modelo:"Modelo M-3",oido:"Ambos",serie:"SERIE-DEMO-003",
+   fechaEntrega:"2023-09-10",estado:"En uso",garantia:{inicio:"2023-09-10",vencimiento:"2025-09-10",estado:"Vencida"}},
+  {id:"AUD-04",pacienteId:"PAC-01187",marca:"Marca Demo Tres",modelo:"Modelo B-2",oido:"Derecho",serie:"SERIE-DEMO-004",
+   fechaEntrega:"2024-11-20",estado:"En uso",garantia:{inicio:"2024-11-20",vencimiento:"2026-11-20",estado:"Vigente"}}
+];
+
+var DOCUMENTOS_SEMILLA = [
+  {id:"DOC-01",pacienteId:"PAC-00412",tipo:"Resultado de audiometría",titulo:"Audiometría 05 sep 2025 (documento ficticio)",fechaDocumento:"2025-09-05",fechaCarga:"2025-09-05",cargadoPorId:"PRO-02"},
+  {id:"DOC-02",pacienteId:"PAC-00412",tipo:"Cartilla física",titulo:"Cartilla física — página 1 (documento ficticio)",fechaDocumento:"2024-08-02",fechaCarga:"2026-04-28",cargadoPorId:"PRO-03"},
+  {id:"DOC-03",pacienteId:"PAC-00412",tipo:"Certificado de garantía",titulo:"Certificado de garantía (documento ficticio)",fechaDocumento:"2024-08-13",fechaCarga:"2026-04-28",cargadoPorId:"PRO-03"},
+  {id:"DOC-04",pacienteId:"PAC-00238",tipo:"Resultado de audiometría",titulo:"Audiometría 05 ago 2025 (documento ficticio)",fechaDocumento:"2025-08-05",fechaCarga:"2025-08-05",cargadoPorId:"PRO-02"},
+  {id:"DOC-05",pacienteId:"PAC-01903",tipo:"Otro",titulo:"Orden de reparación (documento ficticio)",fechaDocumento:"2026-07-22",fechaCarga:"2026-07-22",cargadoPorId:"PRO-03"}
+];
+
+var RECORDATORIOS_SEMILLA = [
+  {id:"REC-01",tipo:"Paciente que dejó de asistir",categoria:"Tarea para recepción",pacienteId:"PAC-01187",
+   motivo:"Sin visita desde may 2025 (14 meses) — Regla temporal por validar con Proaudio. Contactar para conocer su situación.",
+   fecha:"2026-07-20",responsableId:"PRO-03",prioridad:"Alta",estado:"Pendiente",canal:"Llamada"},
+  {id:"REC-02",tipo:"Garantía próxima a vencer",categoria:"Tarea para recepción",pacienteId:"PAC-00412",
+   motivo:"La garantía del equipo (SERIE-DEMO-001) vence el 13 ago 2026 — fechas ficticias para validación visual. Avisar a la paciente.",
+   fecha:HOY,responsableId:"PRO-03",prioridad:"Alta",estado:"Pendiente",canal:"Llamada · WhatsApp (Fase futura)"},
+  {id:"REC-03",tipo:"Cita pendiente de confirmación",categoria:"Recordatorio de cita",pacienteId:"PAC-00238",
+   motivo:"Confirmar cita de mañana 2 ago 11:15 (Audiometría · P. Terán · Sucursal Norte).",
+   fecha:HOY,responsableId:"PRO-03",prioridad:"Media",estado:"Pendiente",canal:"Llamada"},
+  {id:"REC-04",tipo:"Reparación terminada",categoria:"Tarea para recepción",pacienteId:"PAC-01903",
+   motivo:"Equipo listo desde el 30 jul. Avisar que puede retirar. Tiene cita hoy 12:00.",
+   fecha:HOY,responsableId:"PRO-03",prioridad:"Media",estado:"Pendiente",canal:"Llamada"},
+  {id:"REC-05",tipo:"Bienvenida a paciente nuevo",categoria:"Comunicación futura al paciente",pacienteId:"PAC-01542",
+   motivo:"Primera consulta hoy 10:30. El mensaje de bienvenida automático es Fase futura; hoy es una tarea interna.",
+   fecha:HOY,responsableId:"PRO-03",prioridad:"Baja",estado:"Pendiente",canal:"WhatsApp (Fase futura)"},
+  {id:"REC-06",tipo:"Control periódico",categoria:"Tarea para recepción",pacienteId:"PAC-00733",
+   motivo:"Corresponde control periódico según la última atención. Ofrecer cita.",
+   fecha:"2026-08-13",responsableId:"PRO-03",prioridad:"Media",estado:"Pendiente",canal:"Llamada"},
+  {id:"REC-07",tipo:"Audiometría anual",categoria:"Alerta para audióloga",pacienteId:"PAC-01050",
+   motivo:"Se acerca el año desde la última audiometría (plazo de ejemplo, por validar).",
+   fecha:"2026-08-18",responsableId:"PRO-02",prioridad:"Media",estado:"Pendiente",canal:"Interno"},
+  {id:"REC-08",tipo:"Cita pendiente de confirmación",categoria:"Recordatorio de cita",pacienteId:"PAC-00976",
+   motivo:"Confirmar cita del 1 ago 09:45. Confirmada por teléfono.",
+   fecha:"2026-07-30",responsableId:"PRO-03",prioridad:"Media",estado:"Completado",canal:"Llamada",
+   nota:"Paciente confirmó asistencia."}
+];
+
+var COMUNICACIONES_SEMILLA = [
+  {id:"COM-01",pacienteId:"PAC-00412",fecha:"2026-07-24",canal:"Llamada",resultado:"Contactado",
+   nota:"Contactada. Confirmó su cita del 1 de agosto.",registradoPorId:"PRO-03"},
+  {id:"COM-02",pacienteId:"PAC-00976",fecha:"2026-07-30",canal:"Llamada",resultado:"Contactado",
+   nota:"Confirmó asistencia a la cita del 1 de agosto.",registradoPorId:"PRO-03"}
+];
+
+var EVENTOS_SEMILLA = [
+  {id:"EVT-01",pacienteId:"PAC-00412",fecha:HOY,tipo:"Cita",titulo:"Cita agendada · Control periódico · 09:00 · C. Villacís",detalle:"Estado: Confirmada",autor:"M. Salgado"},
+  {id:"EVT-02",pacienteId:"PAC-00412",fecha:"2026-07-24",tipo:"Contacto",titulo:"Contacto · Llamada",detalle:"Resultado: Contactada. Confirmó su cita del 1 de agosto.",autor:"M. Salgado"},
+  {id:"EVT-03",pacienteId:"PAC-00412",fecha:"2026-04-28",tipo:"Atención",titulo:"Atención · Control periódico · Aud. Carmen Villacís",
+   detalle:"Observación: \"Paciente refiere buena adaptación. Se revisa el equipo y se realiza limpieza. Sin novedades.\" · Indicación: \"Continuar con uso diario. Limpiar el molde cada semana. Volver a control en 3 meses.\"",autor:"C. Villacís"},
+  {id:"EVT-04",pacienteId:"PAC-00412",fecha:"2025-12-12",tipo:"Atención",titulo:"Atención · Control periódico · Aud. Carmen Villacís",detalle:"Se ajusta programación. Paciente refiere mejoría en ambientes ruidosos.",autor:"C. Villacís"},
+  {id:"EVT-05",pacienteId:"PAC-00412",fecha:"2025-09-05",tipo:"Documento",titulo:"Audiometría realizada · documento adjunto (ficticio)",autor:"P. Terán"},
+  {id:"EVT-06",pacienteId:"PAC-00412",fecha:"2025-06-20",tipo:"Cita",titulo:"Cita no atendida · Control periódico",detalle:"No asistió. Sin aviso previo.",autor:"M. Salgado"},
+  {id:"EVT-07",pacienteId:"PAC-00412",fecha:"2024-08-13",tipo:"Equipo",titulo:"Entrega de equipo · Marca Demo Uno Modelo Z-1 · Oído derecho · SERIE-DEMO-001",
+   detalle:"Garantía: 24 meses · hasta 13 ago 2026 (fechas y reglas ficticias para validación visual)",autor:"C. Villacís"},
+  {id:"EVT-08",pacienteId:"PAC-00412",fecha:"2024-08-02",tipo:"Ficha",titulo:"Ficha creada",autor:"M. Salgado"},
+  {id:"EVT-10",pacienteId:"PAC-01187",fecha:"2026-07-20",tipo:"Recordatorio",titulo:"Tarea creada: contactar — sin visita desde may 2025",detalle:"Regla temporal por validar con Proaudio",autor:"Sistema (simulado)"},
+  {id:"EVT-11",pacienteId:"PAC-01187",fecha:"2025-05-15",tipo:"Atención",titulo:"Atención · Control periódico · Aud. Paola Terán",detalle:"Adaptación en curso. Indicación: revisar adaptación en 6 meses.",autor:"P. Terán"},
+  {id:"EVT-12",pacienteId:"PAC-01187",fecha:"2024-11-20",tipo:"Equipo",titulo:"Entrega de equipo · Marca Demo Tres Modelo B-2 · SERIE-DEMO-004",autor:"P. Terán"},
+  {id:"EVT-20",pacienteId:"PAC-00976",fecha:"2026-07-30",tipo:"Contacto",titulo:"Contacto · Llamada — confirmó cita del 1 ago",autor:"M. Salgado"},
+  {id:"EVT-21",pacienteId:"PAC-00976",fecha:"2026-02-12",tipo:"Atención",titulo:"Atención · Control periódico · Aud. Paola Terán",detalle:"Sin novedades. Equipo en buen estado.",autor:"P. Terán"},
+  {id:"EVT-30",pacienteId:"PAC-01542",fecha:"2026-07-28",tipo:"Ficha",titulo:"Ficha creada · paciente nuevo",detalle:"Referido por Rosa Cabascango (PAC-00412)",autor:"M. Salgado"},
+  {id:"EVT-31",pacienteId:"PAC-01542",fecha:HOY,tipo:"Cita",titulo:"Cita agendada · Primera consulta · 10:30 · C. Villacís",autor:"M. Salgado"},
+  {id:"EVT-40",pacienteId:"PAC-00238",fecha:"2026-08-02",tipo:"Cita",titulo:"Cita agendada · Audiometría · 11:15 · P. Terán · Sucursal Norte",detalle:"Pendiente de confirmar",autor:"M. Salgado"},
+  {id:"EVT-41",pacienteId:"PAC-00238",fecha:"2025-08-05",tipo:"Atención",titulo:"Atención · Audiometría · Aud. Paola Terán",detalle:"Resultado adjunto (documento ficticio). Indicación: audiometría de control en un año.",autor:"P. Terán"},
+  {id:"EVT-50",pacienteId:"PAC-01903",fecha:"2026-07-30",tipo:"Recordatorio",titulo:"Equipo reparado listo para entregar (simulado)",autor:"Sistema (simulado)"},
+  {id:"EVT-51",pacienteId:"PAC-01903",fecha:"2026-07-22",tipo:"Atención",titulo:"Atención · Recepción de reparación · Aud. Carmen Villacís",detalle:"Se recibe equipo con falla de ejemplo. Orden de reparación adjunta (ficticia).",autor:"C. Villacís"}
+];
+
+/* =========================================================================
+   2. ESTADO EN MEMORIA (se reinicia al recargar la página)
+   ========================================================================= */
+function copia(x){ return JSON.parse(JSON.stringify(x)); }
+
+var S = {
+  pacientes: copia(PACIENTES_SEMILLA),
+  citas: copia(CITAS_SEMILLA),
+  atenciones: copia(ATENCIONES_SEMILLA),
+  recordatorios: copia(RECORDATORIOS_SEMILLA),
+  documentos: copia(DOCUMENTOS_SEMILLA),
+  audifonos: copia(AUDIFONOS_SEMILLA),
+  comunicaciones: copia(COMUNICACIONES_SEMILLA),
+  eventos: copia(EVENTOS_SEMILLA)
+};
+
+/* Estado de la interfaz */
+var UI = {
+  ruta:"inicio", pacienteId:null, citaIdParam:null, destacar:null,
+  busquedaCabecera:"",
+  agenda:{vista:"dia", fecha:HOY, prof:"todos", suc:"todas", citaAbierta:null},
+  pacientes:{q:"", suc:"todas", prof:"todos", soloAlertas:false},
+  ficha:{pestania:"Resumen", filtroTl:"Todo"},
+  recordatorios:{pestania:"hoy"},
+  modal:null, modalDatos:{}, modalError:""
+};
+
+var contadorId = 500;
+function nuevoId(prefijo){ contadorId += 1; return prefijo + "-" + String(contadorId); }
+
+/* =========================================================================
+   3. UTILIDADES
+   ========================================================================= */
+function esc(s){
+  if(s === null || s === undefined) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+                  .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function normalizar(s){
+  return String(s||"").toLowerCase().normalize("NFD")
+    .split("").filter(function(ch){ var c = ch.charCodeAt(0); return c < 0x300 || c > 0x36f; })
+    .join("").trim();
+}
+var MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+var MESES_LARGO = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+var DIAS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+
+function partes(iso){ var p = String(iso).split("-"); return {y:+p[0], m:+p[1], d:+p[2]}; }
+function fechaCorta(iso){ if(!iso) return "—"; var p = partes(iso); return p.d + " " + MESES[p.m-1] + " " + p.y; }
+function fechaLarga(iso){
+  var p = partes(iso), f = new Date(p.y, p.m-1, p.d), dia = DIAS[f.getDay()];
+  return dia.charAt(0).toUpperCase() + dia.slice(1) + ", " + p.d + " de " + MESES_LARGO[p.m-1] + " de " + p.y;
+}
+function nombreMes(m){ return MESES_LARGO[m-1]; }
+function aISO(f){
+  return f.getFullYear() + "-" + String(f.getMonth()+1).padStart(2,"0") + "-" + String(f.getDate()).padStart(2,"0");
+}
+function sumarDias(iso, n){ var p = partes(iso); return aISO(new Date(p.y, p.m-1, p.d+n)); }
+function diaSemana(iso){ var p = partes(iso); return new Date(p.y, p.m-1, p.d).getDay(); }
+function inicioSemana(iso){ var dw = diaSemana(iso); return sumarDias(iso, dw === 0 ? -6 : 1-dw); }
+function diasEntre(a, b){
+  var x = partes(a), y = partes(b);
+  return Math.round((new Date(y.y,y.m-1,y.d) - new Date(x.y,x.m-1,x.d)) / 86400000);
+}
+
+function buscarPaciente(id){ for(var i=0;i<S.pacientes.length;i++) if(S.pacientes[i].id===id) return S.pacientes[i]; return null; }
+function buscarCita(id){ for(var i=0;i<S.citas.length;i++) if(S.citas[i].id===id) return S.citas[i]; return null; }
+function buscarRec(id){ for(var i=0;i<S.recordatorios.length;i++) if(S.recordatorios[i].id===id) return S.recordatorios[i]; return null; }
+function buscarProf(id){ for(var i=0;i<PROFESIONALES.length;i++) if(PROFESIONALES[i].id===id) return PROFESIONALES[i]; return null; }
+function buscarSuc(id){ for(var i=0;i<SUCURSALES.length;i++) if(SUCURSALES[i].id===id) return SUCURSALES[i]; return null; }
+function nombreCompleto(p){ return p ? p.nombres + " " + p.apellidos : ""; }
+function nombrePacienteId(id){ var p = buscarPaciente(id); return p ? nombreCompleto(p) : id; }
+function nombreProfCorto(id){ var p = buscarProf(id); return p ? p.nombreCorto : id; }
+function nombreProfLargo(id){ var p = buscarProf(id); return p ? p.nombre : id; }
+
+/* ── Iconos (SVG en línea, sin librerías) ────────────────────────────────── */
+var TRAZOS = {
+  inicio:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
+  calendario:'<rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/>',
+  campana:'<path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 13 6 9z"/><path d="M10.5 18.5a1.8 1.8 0 0 0 3 0"/>',
+  usuarios:'<circle cx="9" cy="8" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 5.3a3.2 3.2 0 0 1 0 5.4M17.5 14.2A5.6 5.6 0 0 1 21.5 20"/>',
+  lupa:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.7-4.7"/>',
+  calendarioMas:'<rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M8 2.5v4M16 2.5v4M3 10h18M12 13v5M9.5 15.5h5"/>',
+  usuarioMas:'<circle cx="9" cy="8" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M18 8v6M15 11h6"/>',
+  flechaDer:'<path d="M4 12h15M13 6l6 6-6 6"/>',
+  flechaIzq:'<path d="M20 12H5M11 6l-6 6 6 6"/>',
+  alerta:'<path d="M12 3.5 1.8 20.5h20.4z"/><path d="M12 9.5v5M12 17.6v.1"/>',
+  check:'<path d="m4 12.5 5 5 11-11"/>',
+  reloj:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5.5l3.5 2"/>',
+  checkDoble:'<path d="m1.5 12.5 5 5 11-11"/><path d="m11 16 1.5 1.5 11-11"/>',
+  circuloX:'<circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/>',
+  refrescar:'<path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.5 3.5V9H15"/>',
+  telefono:'<path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17.5 17.5 0 0 1 4.5 5.7a2 2 0 0 1 2-2.2z"/>',
+  archivo:'<path d="M6 2.5h7l5 5v14H6z"/><path d="M13 2.5v5h5"/>',
+  subir:'<path d="M12 16V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4 15v4.5h16V15"/>',
+  clip:'<path d="M20 11.5 12 19.5a5 5 0 0 1-7-7l8.5-8.5a3.4 3.4 0 0 1 4.8 4.8L9.7 17.3a1.8 1.8 0 0 1-2.5-2.5l7.8-7.8"/>',
+  lapiz:'<path d="M4 20h4L20 8l-4-4L4 16z"/><path d="m14.5 5.5 4 4"/>',
+  portapapeles:'<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9.5 4V2.8h5V4"/><path d="M9 10h6M9 14h6"/>',
+  chevIzq:'<path d="m15 6-6 6 6 6"/>',
+  chevDer:'<path d="m9 6 6 6-6 6"/>',
+  chevArr:'<path d="m6 15 6-6 6 6"/>',
+  chevAbj:'<path d="m6 9 6 6 6-6"/>',
+  equis:'<path d="M5 5l14 14M19 5 5 19"/>',
+  persona:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+  campanaMas:'<path d="M6 9a6 6 0 0 1 9.5-4.9"/><path d="M6 9v5.5H4.5v0h15S18 13 18 9"/><path d="M10.5 18.5a1.8 1.8 0 0 0 3 0"/><path d="M18 2v6M15 5h6"/>',
+  mensaje:'<path d="M4 5.5h16v11H9l-5 4z" stroke-dasharray="3 2"/>',
+  relojCal:'<circle cx="12" cy="13" r="7"/><path d="M12 9.5V13l2.5 1.5"/><path d="M8 2.5v3M16 2.5v3"/>'
+};
+function ico(nombre, tam, color){
+  var t = TRAZOS[nombre]; if(!t) return "";
+  var s = tam || 16;
+  return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="'+(color||"currentColor")+
+         '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+t+'</svg>';
+}
+
+/* ── Insignias ──────────────────────────────────────────────────────────── */
+var CLASE_ESTADO = {
+  "Agendada":"i-agendada","Confirmada":"i-confirmada","Completada":"i-completada",
+  "No atendida":"i-noatendida","Cancelada":"i-cancelada","Reagendada":"i-reagendada"
+};
+var ICONO_ESTADO = {
+  "Agendada":"reloj","Confirmada":"check","Completada":"checkDoble",
+  "No atendida":"circuloX","Cancelada":"circuloX","Reagendada":"refrescar"
+};
+function badgeEstado(e){
+  return '<span class="insignia '+(CLASE_ESTADO[e]||"i-agendada")+'">'+ico(ICONO_ESTADO[e]||"reloj",12)+esc(e)+'</span>';
+}
+function badgePrioridad(p){
+  var c = p === "Alta" ? "i-alta" : p === "Media" ? "i-media" : "i-baja";
+  return '<span class="insignia '+c+'">Prioridad '+esc(String(p).toLowerCase())+'</span>';
+}
+function badgeDigitalizacion(e){
+  var c = (e === "Completa" || e === "Completa para operar") ? "i-verde"
+        : e === "Parcial" ? "i-ambar"
+        : e === "Datos básicos" ? "i-azul" : "i-neutra";
+  return '<span class="insignia '+c+'">Ficha: '+esc(e)+'</span>';
+}
+function badgeCategoria(cat){
+  if(!cat) return "";
+  return '<span class="insignia i-neutra">Categoría '+esc(cat)+
+         ' <em style="font-style:normal;font-size:10px;color:var(--am700)">· criterio por definir</em></span>';
+}
+function badgePorValidar(t){
+  return '<span class="insignia i-ambar">'+ico("alerta",11)+esc(t||"Por validar")+'</span>';
+}
+function badgeFaseFutura(t){
+  return '<span class="insignia i-neutra">'+esc(t||"Fase futura")+'</span>';
+}
+function alerta(html){
+  return '<div class="alerta">'+ico("alerta",16)+'<div>'+html+'</div></div>';
+}
+function vacio(txt){ return '<div class="vacio">'+txt+'</div>'; }
+
+/* =========================================================================
+   4. ACCIONES SOBRE EL ESTADO
+   ========================================================================= */
+function pushEvento(e){ e.id = nuevoId("EVT"); S.eventos.unshift(e); }
+
+function crearPaciente(d){
+  var p = {
+    id: nuevoId("PAC"), nombres:d.nombres||"", apellidos:d.apellidos||"", telefono:d.telefono||"",
+    sucursalId:d.sucursalId||"SUC-01", estado:"Paciente nuevo", estadoDigitalizacion:"Sin digitalizar",
+    esNuevo:true
+  };
+  ["documento","telefono2","correo","ciudad","fechaNacimiento","comoConocio","referidoPor",
+   "profesionalId","fichaFisica","notas"].forEach(function(k){ if(d[k]) p[k] = d[k]; });
+  S.pacientes.unshift(p);
+  pushEvento({pacienteId:p.id, fecha:HOY, tipo:"Ficha", titulo:"Ficha creada", autor:USUARIA_ACTUAL});
+  return p;
+}
+
+function crearCita(d){
+  var c = {
+    id: nuevoId("CIT"), pacienteId:d.pacienteId, fecha:d.fecha, hora:d.hora,
+    duracionMin:d.duracionMin, profesionalId:d.profesionalId, sucursalId:d.sucursalId,
+    motivo:d.motivo, estado:"Agendada"
+  };
+  if(d.notas) c.notas = d.notas;
+  S.citas.unshift(c);
+  pushEvento({pacienteId:c.pacienteId, fecha:c.fecha, tipo:"Cita",
+    titulo:"Cita agendada · "+c.motivo+" · "+c.hora+" · "+nombreProfCorto(c.profesionalId),
+    detalle:"Estado: Agendada", autor:USUARIA_ACTUAL});
+  return c;
+}
+
+function cambiarEstadoCita(id, estado, motivo){
+  var c = buscarCita(id); if(!c) return;
+  c.estado = estado;
+  if(motivo) c.motivoCambio = motivo;
+  if(estado === "Cancelada" || estado === "No atendida"){
+    pushEvento({pacienteId:c.pacienteId, fecha:HOY, tipo:"Cita",
+      titulo:"Cita "+estado.toLowerCase()+" · "+c.motivo+" · "+fechaCorta(c.fecha)+" "+c.hora,
+      detalle: motivo ? "Motivo: "+motivo : undefined, autor:USUARIA_ACTUAL});
+  }
+}
+
+function reagendarCita(id, nueva, motivo){
+  var o = buscarCita(id); if(!o) return null;
+  var n = {id:nuevoId("CIT"), pacienteId:o.pacienteId, fecha:nueva.fecha, hora:nueva.hora,
+           duracionMin:o.duracionMin, profesionalId:nueva.profesionalId, sucursalId:o.sucursalId,
+           motivo:o.motivo, estado:"Agendada"};
+  o.estado = "Reagendada"; o.motivoCambio = motivo;
+  S.citas.unshift(n);
+  pushEvento({pacienteId:o.pacienteId, fecha:HOY, tipo:"Reagendamiento",
+    titulo:"Cita reagendada: de "+fechaCorta(o.fecha)+" "+o.hora+" a "+fechaCorta(nueva.fecha)+" "+nueva.hora,
+    detalle:"Motivo: "+motivo+". La cita original queda en el historial.", autor:USUARIA_ACTUAL});
+  return n;
+}
+
+function registrarAtencion(d){
+  var a = {id:nuevoId("ATN"), fecha:HOY, profesionalId:"PRO-01", pacienteId:d.pacienteId,
+           citaId:d.citaId, tipo:d.tipo, observacion:d.observacion, indicacion:d.indicacion,
+           proximaAccion:d.proximaAccion, fechaSeguimiento:d.fechaSeguimiento,
+           responsableId:d.responsableId, documentoAdjunto:d.documentoAdjunto};
+  S.atenciones.unshift(a);
+  if(d.citaId){ var c = buscarCita(d.citaId); if(c) c.estado = "Completada"; }
+  var p = buscarPaciente(d.pacienteId);
+  if(p){
+    p.ultimaVisita = HOY;
+    if(d.indicacion) p.ultimaIndicacion = d.indicacion;
+    if(d.proximaAccion) p.proximaAccion = d.proximaAccion;
+    p.esNuevo = false;
+  }
+  pushEvento({pacienteId:d.pacienteId, fecha:HOY, tipo:"Atención", titulo:"Atención · "+d.tipo,
+    detalle:'Observación: "'+d.observacion+'"'+(d.indicacion ? ' · Indicación: "'+d.indicacion+'"' : ""),
+    autor:USUARIA_ACTUAL});
+  if(d.proximaAccion){
+    var r = {id:nuevoId("REC"), tipo:"Seguimiento posterior a la atención",
+             categoria:"Tarea para recepción", pacienteId:d.pacienteId,
+             motivo:d.proximaAccion+" (definido al registrar la atención de hoy).",
+             fecha:d.fechaSeguimiento || HOY, responsableId:d.responsableId,
+             prioridad:"Media", estado:"Pendiente", canal:"Llamada"};
+    S.recordatorios.unshift(r);
+    pushEvento({pacienteId:d.pacienteId, fecha:HOY, tipo:"Recordatorio",
+      titulo:"Tarea de seguimiento creada: "+d.proximaAccion,
+      detalle:"Prevista para "+fechaCorta(r.fecha)+".", autor:USUARIA_ACTUAL});
+  }
+}
+
+function registrarContacto(d){
+  S.comunicaciones.unshift({id:nuevoId("COM"), pacienteId:d.pacienteId, fecha:HOY, canal:d.canal,
+    resultado:d.resultado, nota:d.nota, registradoPorId:"PRO-03"});
+  if(d.recordatorioId){
+    var r = buscarRec(d.recordatorioId);
+    if(r){ r.estado = "Completado"; r.nota = "Contacto: "+d.resultado; }
+  }
+  pushEvento({pacienteId:d.pacienteId, fecha:HOY, tipo:"Contacto", titulo:"Contacto · "+d.canal,
+    detalle:"Resultado: "+d.resultado+(d.nota ? ". "+d.nota : ""), autor:USUARIA_ACTUAL});
+}
+
+function crearRecordatorio(d){
+  var r = {id:nuevoId("REC"), tipo:d.tipo, categoria:d.categoria, pacienteId:d.pacienteId,
+           motivo:d.motivo, fecha:d.fecha, responsableId:d.responsableId,
+           prioridad:d.prioridad, estado:"Pendiente", canal:d.canal};
+  S.recordatorios.unshift(r);
+  if(r.pacienteId){
+    pushEvento({pacienteId:r.pacienteId, fecha:HOY, tipo:"Recordatorio",
+      titulo:"Recordatorio creado: "+r.tipo, detalle:r.motivo, autor:USUARIA_ACTUAL});
+  }
+  return r;
+}
+
+function actualizarRecordatorio(id, patch){
+  var r = buscarRec(id); if(!r) return;
+  var estadoAnterior = r.estado;
+  for(var k in patch) if(Object.prototype.hasOwnProperty.call(patch,k)) r[k] = patch[k];
+  if(r.pacienteId && patch.estado && patch.estado !== estadoAnterior){
+    pushEvento({pacienteId:r.pacienteId, fecha:HOY, tipo:"Recordatorio",
+      titulo:"Recordatorio "+String(patch.estado).toLowerCase()+": "+r.tipo,
+      detalle: patch.motivoCancelacion ? "Motivo: "+patch.motivoCancelacion : undefined,
+      autor:USUARIA_ACTUAL});
+  }
+}
+
+function agregarDocumento(d){
+  S.documentos.unshift({id:nuevoId("DOC"), pacienteId:d.pacienteId, tipo:d.tipo, titulo:d.titulo,
+    fechaDocumento:d.fechaDocumento, fechaCarga:HOY, cargadoPorId:"PRO-03"});
+  pushEvento({pacienteId:d.pacienteId, fecha:HOY, tipo:"Documento",
+    titulo:"Documento cargado (simulado): "+d.titulo, autor:USUARIA_ACTUAL});
+}
+
+/* =========================================================================
+   5. ESTRUCTURA GENERAL
+   ========================================================================= */
+function cabecera(){
+  var enlaces = [
+    {r:"inicio", t:"Inicio", i:"inicio"},
+    {r:"agenda", t:"Agenda", i:"calendario"},
+    {r:"recordatorios", t:"Recordatorios", i:"campana"},
+    {r:"pacientes", t:"Pacientes", i:"usuarios"}
+  ];
+  var nav = enlaces.map(function(e){
+    var activo = (UI.ruta === e.r) || (e.r === "pacientes" && (UI.ruta === "ficha" || UI.ruta === "atencion"));
+    return '<a href="#" data-act="ir" data-arg="'+e.r+'" class="'+(activo?"activo":"")+'">'+ico(e.i,16)+esc(e.t)+'</a>';
+  }).join("");
+  return '<div class="aviso-global">PROTOTIPO DE VALIDACIÓN · DATOS FICTICIOS · NO UTILIZAR CON PACIENTES REALES</div>'+
+  '<header class="top"><div class="top-inner">'+
+    '<a href="#" data-act="ir" data-arg="inicio" class="logo">PROAUDIO<small>Gestión de pacientes</small></a>'+
+    '<nav class="menu">'+nav+'</nav>'+
+    '<div class="buscador">'+ico("lupa",15)+
+      '<input id="busq-cab" type="search" placeholder="Buscar paciente…" value="'+esc(UI.busquedaCabecera)+'" aria-label="Buscar paciente">'+
+    '</div>'+
+    '<div class="usuario"><div><b>'+esc(USUARIA_ACTUAL)+'</b><span>Recepción (usuaria simulada)</span></div>'+
+      '<div class="avatar">MS</div></div>'+
+  '</div></header>';
+}
+
+/* =========================================================================
+   6. PANTALLA — INICIO
+   ========================================================================= */
+function pantallaInicio(){
+  var citasHoy = S.citas.filter(function(c){
+    return c.fecha === HOY && c.estado !== "Reagendada" && c.estado !== "Cancelada";
+  }).sort(function(a,b){ return a.hora.localeCompare(b.hora); });
+
+  var confirmadas = citasHoy.filter(function(c){ return c.estado === "Confirmada" || c.estado === "Completada"; });
+  var porConfirmar = citasHoy.filter(function(c){ return c.estado === "Agendada"; });
+  var pendientes = S.recordatorios.filter(function(r){ return r.estado === "Pendiente" && r.fecha <= HOY; });
+  var atrasados = S.recordatorios.filter(function(r){ return r.estado === "Pendiente" && r.fecha < HOY; });
+
+  var kpis = [[citasHoy.length,"Citas hoy"],[confirmadas.length,"Confirmadas"],
+              [porConfirmar.length,"Por confirmar"],[pendientes.length,"Pendientes de hoy"]]
+    .map(function(k){ return '<div class="tarjeta kpi"><b>'+k[0]+'</b><span>'+k[1]+'</span></div>'; }).join("");
+
+  var listaCitas = citasHoy.map(function(c){
+    var p = buscarPaciente(c.pacienteId);
+    return '<button class="item-lista" data-act="ficha" data-arg="'+c.pacienteId+'">'+
+      '<span class="fila" style="flex-wrap:nowrap">'+
+        '<span class="hora-col">'+esc(c.hora)+'</span>'+
+        '<span><span style="display:block;font-size:14px;font-weight:600;color:var(--s800)">'+
+          esc(nombrePacienteId(c.pacienteId))+(p && p.esNuevo ? ' <span class="etq-nuevo">NUEVO</span>' : '')+'</span>'+
+          '<span class="mini">'+esc(c.motivo)+' · '+esc(nombreProfCorto(c.profesionalId))+'</span></span>'+
+      '</span>'+badgeEstado(c.estado)+'</button>';
+  }).join("") || '<p class="vacio" style="border:none;background:none">No hay citas para hoy.</p>';
+
+  var listaPend = pendientes.slice(0,5).map(function(r){
+    var marca = r.fecha < HOY
+      ? '<span style="color:var(--ro600);margin-top:2px">'+ico("alerta",15)+'</span>'
+      : '<span style="margin-top:6px;width:10px;height:10px;flex:none;border-radius:999px;background:var(--marca-600);display:inline-block"></span>';
+    return '<button class="item-lista" style="align-items:flex-start;justify-content:flex-start;gap:8px" data-act="ir-rec" data-arg="'+r.id+'">'+
+      marca+'<span><span style="display:block;font-size:14px;font-weight:600;color:var(--s800)">'+
+      esc(r.tipo)+(r.pacienteId ? " · "+esc(nombrePacienteId(r.pacienteId)) : "")+'</span>'+
+      '<span class="mini">'+esc(r.motivo)+'</span></span></button>';
+  }).join("") || '<p class="vacio" style="border:none;background:none">Sin pendientes para hoy.</p>';
+
+  var avisos = alerta('1 garantía vence este mes (Rosa Cabascango — fechas ficticias para validación visual).');
+  if(atrasados.length > 0){
+    avisos += alerta(atrasados.length+' tarea'+(atrasados.length>1?'s':'')+' atrasada'+(atrasados.length>1?'s':'')+
+      ' — la más antigua: Segundo Chalá, sin visita hace 14 meses (regla temporal por validar con Proaudio). '+
+      '<a href="#" data-act="ir" data-arg="recordatorios" style="font-weight:700;text-decoration:underline">Ver recordatorios</a>');
+  }
+
+  return '<div class="pila">'+
+    '<div class="fila-sep"><div><h1 class="t">Buenos días, Mónica</h1>'+
+      '<p class="sub">'+esc(fechaLarga(HOY))+' · fecha ficticia de la demostración</p></div>'+
+      '<div class="fila"><button class="btn-primario" data-act="modal-cita">'+ico("calendarioMas",16)+'Nueva cita</button>'+
+      '<button class="btn-secundario" data-act="modal-paciente">'+ico("usuarioMas",16)+'Paciente nuevo</button></div></div>'+
+    '<div class="rejilla4">'+kpis+'</div>'+
+    '<div class="pila-sm">'+avisos+'</div>'+
+    '<div class="rejilla2">'+
+      '<section class="tarjeta"><div class="fila-sep" style="align-items:center;margin-bottom:10px">'+
+        '<h2 class="t2" style="margin:0">Citas de hoy</h2>'+
+        '<a href="#" data-act="ir" data-arg="agenda" class="enlace fila" style="gap:4px">Ver agenda completa '+ico("flechaDer",14)+'</a></div>'+
+        '<div class="lista-div">'+listaCitas+'</div></section>'+
+      '<section class="tarjeta"><div class="fila-sep" style="align-items:center;margin-bottom:10px">'+
+        '<h2 class="t2" style="margin:0">Pendientes de hoy</h2>'+
+        '<a href="#" data-act="ir" data-arg="recordatorios" class="enlace fila" style="gap:4px">Ver todos ('+pendientes.length+') '+ico("flechaDer",14)+'</a></div>'+
+        '<div class="lista-div">'+listaPend+'</div></section>'+
+    '</div>'+
+    '<p class="pie-nota">Sesión simulada de '+esc(USUARIA_ACTUAL)+' (recepción). Este panel no muestra indicadores '+
+      'gerenciales: es una vista operativa del día.</p></div>';
+}
+
+/* =========================================================================
+   7. PANTALLA — AGENDA
+   ========================================================================= */
+var SLOTS = (function(){
+  var a = [];
+  for(var i=0;i<18;i++){
+    var h = 8 + Math.floor(i/2);
+    a.push(String(h).padStart(2,"0")+":"+(i%2===0 ? "00" : "30"));
+  }
+  return a;
+})();
+
+function pantallaAgenda(){
+  var A = UI.agenda;
+  var audiologas = PROFESIONALES.filter(function(p){ return p.atiende; });
+  var columnas = A.prof === "todos" ? audiologas : audiologas.filter(function(p){ return p.id === A.prof; });
+  var filtradas = S.citas.filter(function(c){
+    return (A.suc === "todas" || c.sucursalId === A.suc) && (A.prof === "todos" || c.profesionalId === A.prof);
+  });
+
+  var lunes = inicioSemana(A.fecha);
+  var pf = partes(A.fecha);
+  var diasEnMes = new Date(pf.y, pf.m, 0).getDate();
+  var offset = (new Date(pf.y, pf.m-1, 1).getDay() + 6) % 7;
+
+  var titulo = A.vista === "dia" ? fechaLarga(A.fecha)
+             : A.vista === "semana" ? fechaCorta(lunes)+" – "+fechaCorta(sumarDias(lunes,5))
+             : nombreMes(pf.m)+" "+pf.y;
+
+  var controles =
+    '<div class="fila">'+
+      '<div class="grupo-btn">'+
+        ['dia','semana','mes'].map(function(v){
+          var t = v==='dia'?'Día':v==='semana'?'Semana':'Mes';
+          return '<button data-act="ag-vista" data-arg="'+v+'" class="'+(A.vista===v?'on':'')+'">'+t+'</button>';
+        }).join("")+
+      '</div>'+
+      '<div class="fila" style="gap:2px;border:1px solid var(--s300);background:#fff;border-radius:8px;padding:4px">'+
+        '<button class="btn-suave" style="border:none" data-act="ag-mover" data-arg="-1" aria-label="Anterior">'+ico("chevIzq",16)+'</button>'+
+        '<span style="min-width:190px;text-align:center;font-size:14px;font-weight:600;color:var(--s700)">'+esc(titulo)+'</span>'+
+        '<button class="btn-suave" style="border:none" data-act="ag-mover" data-arg="1" aria-label="Siguiente">'+ico("chevDer",16)+'</button>'+
+      '</div>'+
+      '<button class="btn-suave" data-act="ag-hoy">Hoy</button>'+
+      '<select class="campo auto" data-act="ag-suc">'+
+        '<option value="todas"'+(A.suc==="todas"?" selected":"")+'>Todas las sucursales</option>'+
+        SUCURSALES.map(function(s){ return '<option value="'+s.id+'"'+(A.suc===s.id?" selected":"")+'>'+esc(s.nombre)+'</option>'; }).join("")+
+      '</select>'+
+      '<select class="campo auto" data-act="ag-prof">'+
+        '<option value="todos"'+(A.prof==="todos"?" selected":"")+'>Todas las profesionales</option>'+
+        audiologas.map(function(p){ return '<option value="'+p.id+'"'+(A.prof===p.id?" selected":"")+'>'+esc(p.nombre)+'</option>'; }).join("")+
+      '</select>'+
+    '</div>';
+
+  var cuerpo = "";
+
+  if(A.vista === "dia"){
+    var delDia = filtradas.filter(function(c){ return c.fecha === A.fecha; });
+    var filas = SLOTS.map(function(slot){
+      var celdas = columnas.map(function(p){
+        var slotMin = +slot.slice(0,2)*60 + +slot.slice(3);
+        var enSlot = delDia.filter(function(c){
+          if(c.profesionalId !== p.id) return false;
+          var cm = +c.hora.slice(0,2)*60 + +c.hora.slice(3);
+          return cm >= slotMin && cm < slotMin + 30;
+        });
+        return '<td>'+enSlot.map(function(c){
+          var tenue = (c.estado === "Cancelada" || c.estado === "Reagendada") ? " tenue" : "";
+          return '<button class="bloque-cita'+tenue+'" style="border-left-color:'+p.borde+';background:'+p.fondo+'" '+
+            'data-act="ag-abrir" data-arg="'+c.id+'"><b>'+esc(c.hora)+' · '+esc(nombrePacienteId(c.pacienteId))+'</b>'+
+            '<span class="m"><span>'+esc(c.motivo)+'</span>'+badgeEstado(c.estado)+'</span></button>';
+        }).join("")+'</td>';
+      }).join("");
+      return '<tr><td class="h">'+slot+'</td>'+celdas+'</tr>';
+    }).join("");
+    cuerpo = '<div class="tarjeta p0 scroll-x"><table class="agenda"><thead><tr><th class="h">Hora</th>'+
+      columnas.map(function(p){ return '<th>'+esc(p.nombreCorto)+'</th>'; }).join("")+
+      '</tr></thead><tbody>'+filas+'</tbody></table>'+
+      (delDia.length === 0 ? '<div style="padding:16px">'+vacio("No hay citas este día con los filtros actuales.")+'</div>' : '')+
+      '</div>';
+  }
+
+  if(A.vista === "semana"){
+    cuerpo = '<div class="semana">'+[0,1,2,3,4,5].map(function(i){
+      var d = sumarDias(lunes,i);
+      var delDia = filtradas.filter(function(c){ return c.fecha === d && c.estado !== "Reagendada"; })
+                            .sort(function(a,b){ return a.hora.localeCompare(b.hora); });
+      return '<div class="tarjeta'+(d===HOY?' dia-hoy':'')+'" style="padding:12px">'+
+        '<button style="width:100%;text-align:left;margin-bottom:8px" data-act="ag-dia" data-arg="'+d+'">'+
+        '<b style="font-size:14px;color:var(--s700)">'+esc(fechaCorta(d))+'</b>'+
+        '<span class="mini2" style="display:block">'+delDia.length+' cita'+(delDia.length!==1?'s':'')+' · ver día</span></button>'+
+        '<div class="pila-sm">'+(delDia.map(function(c){
+          return '<button style="display:block;width:100%;text-align:left;border-radius:6px;background:var(--s50);padding:6px 8px;font-size:12px" '+
+            'data-act="ag-abrir" data-arg="'+c.id+'"><b>'+esc(c.hora)+'</b> '+esc(nombrePacienteId(c.pacienteId))+'</button>';
+        }).join("") || '<p style="font-size:12px;color:var(--s300)">—</p>')+'</div></div>';
+    }).join("")+'</div>';
+  }
+
+  if(A.vista === "mes"){
+    var celdas = "";
+    for(var i=0;i<offset;i++) celdas += '<div></div>';
+    for(var d=1; d<=diasEnMes; d++){
+      var iso = pf.y+"-"+String(pf.m).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+      var n = filtradas.filter(function(c){ return c.fecha === iso && c.estado !== "Reagendada" && c.estado !== "Cancelada"; }).length;
+      celdas += '<button class="celda-mes'+(iso===HOY?' hoy':'')+'" data-act="ag-dia" data-arg="'+iso+'">'+
+        '<b>'+d+'</b>'+(n>0 ? '<span class="pastilla">'+n+' cita'+(n>1?'s':'')+'</span>' : '')+'</button>';
+    }
+    cuerpo = '<div class="tarjeta scroll-x"><div class="mes-cab">'+
+      ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].map(function(x){ return '<div>'+x+'</div>'; }).join("")+
+      '</div><div class="mes-rej">'+celdas+'</div></div>';
+  }
+
+  var leyenda = '<div class="tarjeta fila" style="padding:8px 16px;font-size:12px;color:var(--s500)">'+
+    '<b style="color:var(--s600)">Estados:</b>'+
+    ["Agendada","Confirmada","Completada","No atendida","Cancelada","Reagendada"].map(badgeEstado).join("")+'</div>';
+
+  return '<div class="pila">'+
+    '<div class="fila-sep"><h1 class="t">Agenda</h1>'+
+      '<button class="btn-primario" data-act="modal-cita">'+ico("calendarioMas",16)+'Nueva cita</button></div>'+
+    controles + cuerpo + leyenda + '</div>' + panelCita();
+}
+
+function panelCita(){
+  var c = UI.agenda.citaAbierta ? buscarCita(UI.agenda.citaAbierta) : null;
+  if(!c) return "";
+  var acciones =
+    '<button class="btn-primario ancho-total" data-act="ficha" data-arg="'+c.pacienteId+'">Abrir ficha del paciente</button>'+
+    '<button class="btn-secundario ancho-total" data-act="atencion" data-arg="'+c.pacienteId+'|'+c.id+'">Registrar atención</button>';
+  if(c.estado === "Agendada")
+    acciones += '<button class="btn-secundario ancho-total" data-act="cita-confirmar" data-arg="'+c.id+'">Marcar confirmada</button>';
+  if(c.estado === "Agendada" || c.estado === "Confirmada"){
+    acciones += '<button class="btn-secundario ancho-total" data-act="modal-reagendar" data-arg="'+c.id+'">Reagendar</button>'+
+      '<button class="btn-secundario ancho-total" data-act="modal-noatendida" data-arg="'+c.id+'">Marcar no atendida</button>'+
+      '<button class="btn-secundario ancho-total rojo" data-act="modal-cancelar-cita" data-arg="'+c.id+'">Cancelar cita</button>';
+  }
+  return '<div class="panel-fondo" data-cerrar-panel="1"><div class="panel">'+
+    '<div class="fila-sep" style="align-items:flex-start;margin-bottom:16px">'+
+      '<div><h2 style="font-size:18px;font-weight:700;color:var(--s800)">'+esc(nombrePacienteId(c.pacienteId))+'</h2>'+
+      '<p class="sub">'+esc(fechaCorta(c.fecha))+' · '+esc(c.hora)+' · '+c.duracionMin+' min</p></div>'+
+      '<button class="cerrar" data-act="cerrar-panel" aria-label="Cerrar">'+ico("equis",20)+'</button></div>'+
+    '<div class="pila-sm" style="font-size:14px">'+
+      '<p><b>Motivo:</b> '+esc(c.motivo)+'</p>'+
+      '<p><b>Profesional:</b> '+esc(nombreProfLargo(c.profesionalId))+'</p>'+
+      '<p><b>Sucursal:</b> '+esc((buscarSuc(c.sucursalId)||{}).nombre)+'</p>'+
+      '<p class="fila"><b>Estado:</b> '+badgeEstado(c.estado)+'</p>'+
+      (c.notas ? '<p><b>Notas:</b> '+esc(c.notas)+'</p>' : '')+
+      (c.motivoCambio ? '<p style="color:var(--s500)"><b>Motivo registrado:</b> '+esc(c.motivoCambio)+'</p>' : '')+
+    '</div><div class="pila-sm" style="margin-top:20px">'+acciones+'</div></div></div>';
+}
+
+/* =========================================================================
+   8. PANTALLA — CENTRO DE RECORDATORIOS
+   ========================================================================= */
+var ICONO_CAT = {"Tarea para recepción":"telefono","Alerta para audióloga":"campana",
+  "Recordatorio de cita":"relojCal","Comunicación futura al paciente":"mensaje"};
+var CLASE_CAT = {"Tarea para recepción":"i-azul","Alerta para audióloga":"i-violeta",
+  "Recordatorio de cita":"i-verde","Comunicación futura al paciente":"i-neutra"};
+
+function pantallaRecordatorios(){
+  var pend = S.recordatorios.filter(function(r){ return r.estado === "Pendiente"; });
+  var g = {
+    hoy: pend.filter(function(r){ return r.fecha === HOY; }),
+    atrasados: pend.filter(function(r){ return r.fecha < HOY; }),
+    proximos: pend.filter(function(r){ return r.fecha > HOY; }),
+    completados: S.recordatorios.filter(function(r){ return r.estado === "Completado" || r.estado === "Cancelado"; })
+  };
+  var p = UI.recordatorios.pestania;
+  var lista = p === "atrasados" ? g.atrasados.slice().sort(function(a,b){ return a.fecha.localeCompare(b.fecha); })
+            : p === "hoy" ? g.atrasados.concat(g.hoy)
+            : g[p].slice().sort(function(a,b){ return a.fecha.localeCompare(b.fecha); });
+
+  var pestanias = [["hoy","Hoy ("+(g.hoy.length+g.atrasados.length)+")"],
+                   ["atrasados","Atrasados ("+g.atrasados.length+")"],
+                   ["proximos","Próximos ("+g.proximos.length+")"],
+                   ["completados","Completados ("+g.completados.length+")"]]
+    .map(function(x){ return '<button data-act="rec-pest" data-arg="'+x[0]+'" class="'+(p===x[0]?'on':'')+'">'+esc(x[1])+'</button>'; }).join("");
+
+  var items = lista.map(function(r){
+    var atrasado = r.estado === "Pendiente" && r.fecha < HOY;
+    var clases = "tarjeta" + (UI.destacar === r.id ? " rec-destacado" : "") + (atrasado ? " rec-atrasado" : "");
+    var cab = (atrasado ? '<span class="etq-atraso">ATRASADO · '+diasEntre(r.fecha,HOY)+' días</span>' : '')+
+      '<span class="insignia '+(CLASE_CAT[r.categoria]||"i-neutra")+'">'+ico(ICONO_CAT[r.categoria]||"campana",13)+esc(r.categoria)+'</span>'+
+      badgePrioridad(r.prioridad)+
+      (String(r.canal).indexOf("Fase futura") >= 0 ? badgeFaseFutura("Envío externo: Fase futura") : "");
+    var acciones = "";
+    if(r.estado === "Pendiente"){
+      acciones = '<div class="acciones-rec">'+
+        (r.pacienteId ? '<button class="btn-suave" data-act="ficha" data-arg="'+r.pacienteId+'">Abrir ficha</button>' : '')+
+        (r.pacienteId ? '<button class="btn-suave" data-act="modal-contacto-rec" data-arg="'+r.id+'">Registrar contacto</button>' : '')+
+        '<button class="btn-suave" data-act="modal-editar-rec" data-arg="'+r.id+'">Editar</button>'+
+        '<button class="btn-suave" data-act="modal-posponer" data-arg="'+r.id+'">Posponer</button>'+
+        '<button class="btn-suave" data-act="modal-reasignar" data-arg="'+r.id+'">Reasignar</button>'+
+        '<button class="btn-suave" data-act="rec-completar" data-arg="'+r.id+'">Completar</button>'+
+        '<button class="btn-suave rojo" data-act="modal-cancelar-rec" data-arg="'+r.id+'">Cancelar</button>'+
+      '</div>';
+    }
+    return '<div class="'+clases+'"><div class="fila">'+cab+'</div>'+
+      '<h3 style="margin-top:6px;font-weight:700;color:var(--s800)">'+esc(r.tipo)+
+        (r.pacienteId ? '<span style="font-weight:600;color:var(--s500)"> · '+esc(nombrePacienteId(r.pacienteId))+'</span>' : '')+'</h3>'+
+      '<p style="margin-top:2px;font-size:14px;color:var(--s600)">'+esc(r.motivo)+'</p>'+
+      '<p class="mini" style="margin-top:4px">'+ico("persona",12)+' Previsto: <b>'+esc(fechaCorta(r.fecha))+'</b> · Responsable: '+
+        esc(nombreProfLargo(r.responsableId))+' · Canal sugerido: '+esc(r.canal)+' · Estado: '+esc(r.estado)+
+        (r.motivoCancelacion ? ' (motivo: '+esc(r.motivoCancelacion)+')' : '')+'</p>'+
+      (r.nota ? '<p class="mini" style="margin-top:4px;font-style:italic">Nota: '+esc(r.nota)+'</p>' : '')+
+      acciones+'</div>';
+  }).join("") || vacio("No hay elementos en esta pestaña.");
+
+  return '<div class="pila">'+
+    '<div class="fila-sep"><h1 class="t">Centro de recordatorios</h1>'+
+      '<button class="btn-primario" data-act="modal-recordatorio">+ Recordatorio manual</button></div>'+
+    alerta('La cantidad y priorización de tareas se configurará según la capacidad real del equipo. '+
+           'Las tareas de esta lista son ejemplos ficticios para validar el concepto.')+
+    '<div class="pestanias">'+pestanias+'</div>'+
+    '<div class="pila">'+items+'</div></div>';
+}
+
+/* =========================================================================
+   9. PANTALLA — LISTA DE PACIENTES
+   ========================================================================= */
+function pantallaPacientes(){
+  var F = UI.pacientes;
+  var nq = normalizar(F.q);
+  var soloDigitos = nq.replace(/\D/g,"");
+  var res = S.pacientes.filter(function(p){
+    if(F.suc !== "todas" && p.sucursalId !== F.suc) return false;
+    if(F.prof !== "todos" && p.profesionalId !== F.prof) return false;
+    if(F.soloAlertas && !p.alerta) return false;
+    if(!nq) return true;
+    return normalizar(p.nombres+" "+p.apellidos).indexOf(nq) >= 0
+        || normalizar(p.apellidos+" "+p.nombres).indexOf(nq) >= 0
+        || (soloDigitos.length > 0 && p.telefono.replace(/\D/g,"").indexOf(soloDigitos) >= 0)
+        || normalizar(p.documento||"").indexOf(nq) >= 0
+        || normalizar(p.id).indexOf(nq) >= 0;
+  });
+
+  var filas = res.map(function(p){
+    var prox = S.citas.filter(function(c){
+      return c.pacienteId === p.id && c.fecha >= HOY && (c.estado === "Agendada" || c.estado === "Confirmada");
+    }).sort(function(a,b){ return (a.fecha+a.hora).localeCompare(b.fecha+b.hora); })[0];
+    var prof = buscarProf(p.profesionalId), suc = buscarSuc(p.sucursalId);
+    return '<a href="#" class="ficha-item" data-act="ficha" data-arg="'+p.id+'"><div class="tarjeta">'+
+      '<div class="fila-sep" style="align-items:flex-start"><div>'+
+        '<div class="fila"><b style="color:var(--s800)">'+esc(p.apellidos)+', '+esc(p.nombres)+'</b>'+
+          '<span class="mini2" style="font-weight:700">'+esc(p.id)+'</span>'+
+          (p.esNuevo ? '<span class="etq-nuevo">NUEVO</span>' : '')+badgeCategoria(p.categoria)+'</div>'+
+        '<div class="mini" style="margin-top:4px">'+ico("telefono",12)+' '+esc(p.telefono)+' · '+esc(suc?suc.nombre:"")+
+          (prof ? ' · '+esc(prof.nombreCorto) : '')+' · Últ. visita: '+esc(fechaCorta(p.ultimaVisita))+
+          ' · Próx. cita: '+(prox ? esc(fechaCorta(prox.fecha)+" "+prox.hora) : "—")+'</div>'+
+        (p.alerta ? '<div style="margin-top:4px;font-size:12px;font-weight:600;color:var(--am800)">⚠ '+esc(p.alerta)+'</div>' : '')+
+      '</div>'+badgeDigitalizacion(p.estadoDigitalizacion)+'</div></div></a>';
+  }).join("") || vacio('No se encontraron pacientes con esos datos. '+
+      '<button style="font-weight:700;color:var(--marca-700);text-decoration:underline" data-act="modal-paciente">Crear paciente nuevo</button>');
+
+  return '<div class="pila">'+
+    '<div class="fila-sep"><h1 class="t">Pacientes</h1>'+
+      '<button class="btn-primario" data-act="modal-paciente">'+ico("usuarioMas",16)+'Paciente nuevo</button></div>'+
+    '<div class="tarjeta pila-sm">'+
+      '<div class="buscador" style="display:block">'+ico("lupa",16)+
+        '<input id="busq-pac" class="campo" style="padding-left:34px" placeholder="Buscar por nombre, teléfono, documento o código (PAC-…)" value="'+esc(F.q)+'">'+
+      '</div>'+
+      '<div class="fila" style="font-size:14px">'+
+        '<select class="campo auto" data-act="pac-suc">'+
+          '<option value="todas"'+(F.suc==="todas"?" selected":"")+'>Todas las sucursales</option>'+
+          SUCURSALES.map(function(s){ return '<option value="'+s.id+'"'+(F.suc===s.id?" selected":"")+'>'+esc(s.nombre)+'</option>'; }).join("")+
+        '</select>'+
+        '<select class="campo auto" data-act="pac-prof">'+
+          '<option value="todos"'+(F.prof==="todos"?" selected":"")+'>Todas las profesionales</option>'+
+          PROFESIONALES.filter(function(p){return p.atiende;}).map(function(p){
+            return '<option value="'+p.id+'"'+(F.prof===p.id?" selected":"")+'>'+esc(p.nombre)+'</option>'; }).join("")+
+        '</select>'+
+        '<label class="fila" style="gap:6px;color:var(--s600)"><input type="checkbox" data-act="pac-alertas"'+
+          (F.soloAlertas?" checked":"")+'> Solo con alertas</label>'+
+        '<span class="mini2" style="margin-left:auto">'+res.length+' paciente'+(res.length!==1?'s':'')+' (datos ficticios)</span>'+
+      '</div></div>'+
+    '<div class="pila-sm">'+filas+'</div></div>';
+}
+
+/* =========================================================================
+   10. PANTALLA — FICHA DEL PACIENTE
+   ========================================================================= */
+var COLOR_EVENTO = {Cita:"var(--em500)", "Atención":"var(--sk500)", Reagendamiento:"var(--vi500)",
+  Contacto:"var(--am300)", Recordatorio:"var(--s400)", Documento:"var(--te500)",
+  Equipo:"var(--in500)", Ficha:"var(--s300)"};
+var PESTANIAS_FICHA = ["Resumen","Línea de tiempo","Citas","Audífonos","Documentos","Comunicaciones"];
+
+function pantallaFicha(){
+  var p = buscarPaciente(UI.pacienteId);
+  if(!p) return '<div class="pila"><p>No se encontró el paciente.</p>'+
+    '<button class="btn-secundario" data-act="ir" data-arg="pacientes">Volver a Pacientes</button></div>';
+
+  var citasP = S.citas.filter(function(c){ return c.pacienteId === p.id; })
+    .sort(function(a,b){ return (b.fecha+b.hora).localeCompare(a.fecha+a.hora); });
+  var prox = citasP.filter(function(c){
+    return c.fecha >= HOY && (c.estado === "Agendada" || c.estado === "Confirmada");
+  }).sort(function(a,b){ return (a.fecha+a.hora).localeCompare(b.fecha+b.hora); })[0];
+  var equipos = S.audifonos.filter(function(a){ return a.pacienteId === p.id; });
+  var docs = S.documentos.filter(function(d){ return d.pacienteId === p.id; });
+  var contactos = S.comunicaciones.filter(function(c){ return c.pacienteId === p.id; });
+  var prof = buscarProf(p.profesionalId), suc = buscarSuc(p.sucursalId);
+
+  var encabezado = '<div class="tarjeta"><div class="fila-sep" style="align-items:flex-start">'+
+    '<div><div class="fila"><h1 style="font-size:20px;font-weight:800;text-transform:uppercase;color:var(--s800)">'+
+      esc(p.nombres)+' '+esc(p.apellidos)+'</h1><span class="etq-cod">'+esc(p.id)+'</span>'+
+      (p.esNuevo ? '<span class="etq-nuevo">NUEVO</span>' : '')+badgeCategoria(p.categoria)+'</div>'+
+      '<div class="sub" style="margin-top:4px">'+ico("telefono",13)+' '+esc(p.telefono)+
+        (p.correo ? ' · ✉ '+esc(p.correo) : ' · ✉ (sin correo)')+' · 📍 '+esc(p.ciudad||"—")+' · '+esc(suc?suc.nombre:"")+'</div>'+
+      '<div class="sub" style="margin-top:4px">Profesional responsable: <b>'+esc(prof?prof.nombre:"Sin asignar")+
+        '</b> · Estado: <b>'+esc(p.estado)+'</b></div></div>'+
+    '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">'+badgeDigitalizacion(p.estadoDigitalizacion)+
+      (p.ubicacionArchivo ? '<span class="mini2">Ficha física: '+esc(p.ubicacionArchivo)+'</span>' : '')+'</div>'+
+    '</div>'+(p.alerta ? '<div style="margin-top:12px">'+alerta(esc(p.alerta))+'</div>' : '')+'</div>';
+
+  var acciones = '<div class="fila">'+
+    '<button class="btn-primario" data-act="modal-cita-pac" data-arg="'+p.id+'">'+ico("calendarioMas",16)+'Agendar cita</button>'+
+    '<button class="btn-primario" data-act="atencion" data-arg="'+p.id+'|'+((prox && prox.fecha === HOY) ? prox.id : "")+'">'+
+      ico("portapapeles",16)+'Registrar atención</button>'+
+    '<button class="btn-secundario" data-act="modal-recordatorio-pac" data-arg="'+p.id+'">'+ico("campanaMas",16)+'Crear recordatorio</button>'+
+    '<button class="btn-secundario" data-act="modal-contacto" data-arg="'+p.id+'">'+ico("telefono",16)+'Registrar contacto</button>'+
+    '<button class="btn-secundario" data-act="modal-documento" data-arg="'+p.id+'">'+ico("subir",16)+'Adjuntar documento</button>'+
+    '<button class="btn-secundario" data-act="modal-editar-pac" data-arg="'+p.id+'">'+ico("lapiz",16)+'Editar datos</button>'+
+  '</div>';
+
+  var tabs = '<div class="pestanias">'+PESTANIAS_FICHA.map(function(t){
+    return '<button data-act="ficha-pest" data-arg="'+esc(t)+'" class="'+(UI.ficha.pestania===t?'on':'')+'">'+esc(t)+'</button>';
+  }).join("")+'</div>';
+
+  var cuerpo = "";
+  var pest = UI.ficha.pestania;
+
+  if(pest === "Resumen"){
+    var equiposHtml = equipos.map(function(a){
+      var g = a.garantia ? '<div class="caja-garantia '+
+        (a.garantia.estado==="Vigente"?"g-vigente":a.garantia.estado==="Por vencer"?"g-porvencer":"g-vencida")+'">'+
+        'Garantía '+esc(a.garantia.estado.toLowerCase())+': '+esc(fechaCorta(a.garantia.inicio))+' → '+esc(fechaCorta(a.garantia.vencimiento))+
+        '<span>Fechas y reglas ficticias para validación visual (D-05 por definir)</span></div>' : '';
+      return '<div class="equipo-item"><b style="color:var(--s800)">'+esc(a.marca)+' '+esc(a.modelo)+' · Oído: '+esc(a.oido)+'</b>'+
+        '<div style="color:var(--s500)">Serie: '+esc(a.serie)+' · Entregado: '+esc(fechaCorta(a.fechaEntrega))+' · Estado: '+esc(a.estado)+'</div>'+g+'</div>';
+    }).join("") || vacio("Sin audífonos registrados.");
+
+    var citasRec = citasP.slice(0,4).map(function(c){
+      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0">'+
+        '<span>'+esc(fechaCorta(c.fecha))+' · '+esc(c.hora)+' · '+esc(c.motivo)+'</span>'+badgeEstado(c.estado)+'</div>';
+    }).join("") || vacio("Sin citas registradas.");
+
+    cuerpo = '<div class="rejilla2">'+
+      '<section class="tarjeta"><h2 class="t2">Contexto clínico operativo</h2><dl class="datos">'+
+        '<div><dt>Última atención</dt><dd>'+esc(fechaCorta(p.ultimaVisita))+'</dd></div>'+
+        '<div><dt>Última indicación al paciente</dt><dd>'+(p.ultimaIndicacion?'"'+esc(p.ultimaIndicacion)+'"':"—")+'</dd></div>'+
+        '<div><dt>▶ Próxima acción recomendada</dt><dd class="fuerte">'+esc(p.proximaAccion||"—")+'</dd></div>'+
+        '<div><dt>Próxima cita</dt><dd>'+(prox
+          ? '<span class="fila">'+esc(fechaCorta(prox.fecha))+' · '+esc(prox.hora)+' · '+esc(prox.motivo)+' · '+
+            esc(nombreProfCorto(prox.profesionalId))+' '+badgeEstado(prox.estado)+'</span>'
+          : "Sin cita agendada")+'</dd></div>'+
+        '</dl><button class="enlace" style="margin-top:12px" data-act="ficha-pest" data-arg="Línea de tiempo">Ver línea de tiempo →</button></section>'+
+      '<section class="tarjeta"><h2 class="t2">Equipos y garantías</h2>'+equiposHtml+'</section>'+
+      '<section class="tarjeta"><h2 class="t2">Citas recientes</h2><div class="lista-div" style="font-size:14px">'+citasRec+'</div>'+
+        '<button class="enlace" style="margin-top:8px" data-act="ficha-pest" data-arg="Citas">Ver todas →</button></section>'+
+      '<section class="tarjeta"><h2 class="t2">Archivo y documentos</h2>'+
+        '<div class="pila-sm" style="font-size:14px;color:var(--s600)">'+
+          '<p>Estado de digitalización: '+badgeDigitalizacion(p.estadoDigitalizacion)+
+            ' <span class="mini2">(estado visual — sin porcentajes en esta versión)</span></p>'+
+          '<p>Ubicación de la ficha física: '+esc(p.ubicacionArchivo||"Sin registrar")+'</p>'+
+          '<p>Nº de ficha física: '+esc(p.fichaFisica||"—")+'</p></div>'+
+        '<div class="fila" style="margin-top:8px">'+docs.slice(0,3).map(function(d){
+          return '<span class="insignia i-neutra">'+ico("archivo",12)+esc(d.titulo)+'</span>'; }).join("")+'</div>'+
+        '<button class="enlace" style="margin-top:8px" data-act="ficha-pest" data-arg="Documentos">Ver documentos →</button></section>'+
+    '</div>';
+  }
+
+  if(pest === "Línea de tiempo"){
+    var tl = S.eventos.filter(function(e){
+      return e.pacienteId === p.id && (UI.ficha.filtroTl === "Todo" || e.tipo === UI.ficha.filtroTl);
+    }).sort(function(a,b){ return b.fecha.localeCompare(a.fecha); });
+    var chips = ["Todo","Atención","Cita","Contacto","Documento","Recordatorio","Equipo"].map(function(f){
+      return '<button class="chip'+(UI.ficha.filtroTl===f?' on':'')+'" data-act="tl-filtro" data-arg="'+esc(f)+'">'+esc(f)+'</button>';
+    }).join("");
+    var lis = tl.map(function(e){
+      return '<li><span class="punto" style="background:'+(COLOR_EVENTO[e.tipo]||"var(--s400)")+'"></span>'+
+        '<div class="cab">'+esc(fechaCorta(e.fecha))+' · '+esc(e.tipo)+'</div>'+
+        '<div class="tit">'+esc(e.titulo)+'</div>'+
+        (e.detalle ? '<div class="det">'+esc(e.detalle)+'</div>' : '')+
+        '<div class="aut">Registrado por: '+esc(e.autor)+'</div></li>';
+    }).join("") || '<li>'+vacio("Sin eventos con este filtro.")+'</li>';
+    cuerpo = '<div class="tarjeta"><div class="fila" style="margin-bottom:12px">'+
+      '<b style="font-size:14px;color:var(--s600)">Filtrar:</b>'+chips+'</div>'+
+      '<p class="nota-gris" style="margin-bottom:12px">Los eventos históricos no desaparecen silenciosamente: '+
+        'correcciones, anulaciones o eliminaciones autorizadas dejan trazabilidad, según las reglas que defina Proaudio.</p>'+
+      '<ol class="tl">'+lis+'</ol></div>';
+  }
+
+  if(pest === "Citas"){
+    cuerpo = '<div class="tarjeta"><div class="lista-div" style="font-size:14px">'+(citasP.map(function(c){
+      return '<div class="fila-sep" style="align-items:center;padding:10px 0"><div>'+
+        '<b style="color:var(--s800)">'+esc(fechaCorta(c.fecha))+' · '+esc(c.hora)+' · '+esc(c.motivo)+'</b>'+
+        '<div class="mini">'+esc(nombreProfCorto(c.profesionalId))+' · '+esc((buscarSuc(c.sucursalId)||{}).nombre)+
+        (c.motivoCambio ? ' · Motivo: '+esc(c.motivoCambio) : '')+'</div></div>'+badgeEstado(c.estado)+'</div>';
+    }).join("") || vacio("Sin citas registradas."))+'</div></div>';
+  }
+
+  if(pest === "Audífonos"){
+    cuerpo = '<div class="tarjeta pila-sm">'+(equipos.map(function(a){
+      return '<div class="equipo-item"><b style="color:var(--s800)">'+esc(a.marca)+' '+esc(a.modelo)+'</b>'+
+        '<div class="campos2" style="margin-top:4px;color:var(--s600)"><span>Oído: '+esc(a.oido)+'</span>'+
+        '<span>Serie: '+esc(a.serie)+'</span><span>Entregado: '+esc(fechaCorta(a.fechaEntrega))+'</span>'+
+        '<span>Estado: '+esc(a.estado)+'</span></div>'+
+        (a.garantia ? '<p class="mini" style="margin-top:8px">Garantía: '+esc(fechaCorta(a.garantia.inicio))+' → '+
+          esc(fechaCorta(a.garantia.vencimiento))+' · <b>'+esc(a.garantia.estado)+
+          '</b> — fechas y reglas ficticias para validación visual.</p>' : '')+'</div>';
+    }).join("") || vacio("Sin audífonos registrados."))+'</div>';
+  }
+
+  if(pest === "Documentos"){
+    cuerpo = '<div class="tarjeta pila-sm">'+(docs.map(function(d){
+      return '<div class="doc-item"><div class="fila" style="gap:8px">'+
+        '<span style="color:var(--s400)">'+ico("archivo",18)+'</span><div>'+
+        '<b style="color:var(--s800)">'+esc(d.titulo)+'</b>'+
+        '<div class="mini">'+esc(d.tipo)+' · Fecha del documento: '+esc(fechaCorta(d.fechaDocumento))+
+        ' · Cargado: '+esc(fechaCorta(d.fechaCarga))+' por '+esc(nombreProfCorto(d.cargadoPorId))+'</div></div></div>'+
+        '<span class="mini2" style="font-style:italic">Visor no disponible en el prototipo</span></div>';
+    }).join("") || vacio("Sin documentos adjuntos."))+
+    '<button class="btn-secundario" data-act="modal-documento" data-arg="'+p.id+'">'+ico("subir",16)+'Adjuntar documento simulado</button></div>';
+  }
+
+  if(pest === "Comunicaciones"){
+    cuerpo = '<div class="tarjeta pila-sm">'+
+      '<p class="mini">Registro manual de llamadas y contactos. Envío de WhatsApp y correo: '+badgeFaseFutura()+'</p>'+
+      (contactos.map(function(c){
+        return '<div class="equipo-item"><b style="color:var(--s800)">'+esc(fechaCorta(c.fecha))+' · '+esc(c.canal)+' · '+esc(c.resultado)+'</b>'+
+          (c.nota ? '<div style="color:var(--s600)">'+esc(c.nota)+'</div>' : '')+
+          '<div class="mini2">Registrado por: '+esc(nombreProfCorto(c.registradoPorId))+'</div></div>';
+      }).join("") || vacio("Sin contactos registrados."))+
+      '<button class="btn-secundario" data-act="modal-contacto" data-arg="'+p.id+'">'+ico("telefono",16)+'Registrar contacto</button></div>';
+  }
+
+  return '<div class="pila">'+
+    '<button class="fila" style="gap:4px;font-size:14px;font-weight:600;color:var(--s500)" data-act="volver">'+
+      ico("flechaIzq",15)+'Volver</button>'+
+    encabezado + acciones + tabs + cuerpo + '</div>';
+}
+
+/* =========================================================================
+   11. PANTALLA — REGISTRO DE ATENCIÓN
+   ========================================================================= */
+function pantallaAtencion(){
+  var p = buscarPaciente(UI.pacienteId);
+  if(!p) return '<div class="pila"><p>No se encontró el paciente.</p>'+
+    '<button class="btn-secundario" data-act="ir" data-arg="pacientes">Volver a Pacientes</button></div>';
+
+  var citaHoy = S.citas.filter(function(c){
+    return c.pacienteId === p.id && c.fecha === HOY && (c.estado === "Agendada" || c.estado === "Confirmada");
+  })[0];
+  var cita = (UI.citaIdParam ? buscarCita(UI.citaIdParam) : null) || citaHoy;
+  var equipo = S.audifonos.filter(function(a){ return a.pacienteId === p.id; })[0];
+  var D = UI.modalDatos;
+  if(D.__pantalla !== "atencion"){
+    UI.modalDatos = D = {__pantalla:"atencion",
+      tipo:(cita && TIPOS_ATENCION.indexOf(cita.motivo) >= 0) ? cita.motivo : TIPOS_ATENCION[0],
+      observacion:"", indicacion:"", proximaAccion:"", fechaSeguimiento:sumarDias(HOY,90),
+      responsableId:"PRO-03", sinSeguimiento:false, adjunto:""};
+    UI.modalError = "";
+  }
+
+  var ctxEquipo = equipo
+    ? esc(equipo.marca+" "+equipo.modelo+" · "+equipo.oido+" · "+equipo.serie)+
+      (equipo.garantia ? esc(" · Garantía "+equipo.garantia.estado.toLowerCase()+" hasta "+
+        fechaCorta(equipo.garantia.vencimiento)+" (fechas ficticias)") : "")
+    : "Sin equipo registrado";
+
+  var bloqueSeguimiento = D.sinSeguimiento ? "" :
+    '<div class="campos2">'+
+      '<div class="ancho2"><label class="etiqueta">Próxima acción *</label>'+
+        '<input class="campo" id="at-proxima" value="'+esc(D.proximaAccion)+'" placeholder="Ej.: Control periódico en noviembre 2026"></div>'+
+      '<div><label class="etiqueta">Fecha sugerida</label>'+
+        '<input type="date" class="campo" id="at-fecha" value="'+esc(D.fechaSeguimiento)+'"></div>'+
+      '<div><label class="etiqueta">Responsable del seguimiento</label>'+
+        '<select class="campo" id="at-resp">'+PROFESIONALES.map(function(x){
+          return '<option value="'+x.id+'"'+(D.responsableId===x.id?" selected":"")+'>'+esc(x.nombre+" — "+x.rol)+'</option>';
+        }).join("")+'</select></div>'+
+    '</div>';
+
+  return '<div class="pila" style="max-width:760px;margin:0 auto">'+
+    '<button class="fila" style="gap:4px;font-size:14px;font-weight:600;color:var(--s500)" data-act="volver">'+
+      ico("flechaIzq",15)+'Volver</button>'+
+    '<div><h1 class="t">Registrar atención</h1><p class="sub">'+esc(nombreCompleto(p))+' · '+esc(p.id)+
+      (cita ? ' · '+esc(fechaCorta(cita.fecha))+' '+esc(cita.hora)+' · '+esc(cita.motivo)+' '+badgeEstado(cita.estado) : '')+'</p></div>'+
+    alerta('Este formulario es un <strong>resumen operativo</strong>, no una historia clínica electrónica completa.')+
+    '<section class="tarjeta" style="background:var(--s50);font-size:14px">'+
+      '<div class="tit-mini" style="margin-bottom:8px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--s500)">'+
+        'Contexto antes de atender (solo lectura)</div>'+
+      '<div class="campos2">'+
+        '<p><b>Última atención:</b> '+esc(fechaCorta(p.ultimaVisita))+'</p>'+
+        '<p><b>Próxima acción pendiente:</b> '+esc(p.proximaAccion||"—")+'</p>'+
+        '<p class="ancho2"><b>Última indicación:</b> '+(p.ultimaIndicacion?'"'+esc(p.ultimaIndicacion)+'"':"—")+'</p>'+
+        '<p class="ancho2"><b>Audífono actual:</b> '+ctxEquipo+'</p>'+
+      '</div></section>'+
+    '<section class="tarjeta pila">'+
+      '<div class="campos2">'+
+        '<div><label class="etiqueta">Fecha</label><input class="campo" value="'+esc(fechaCorta(HOY))+'" readonly></div>'+
+        '<div><label class="etiqueta">Profesional que atiende</label>'+
+          '<input class="campo" value="Aud. Carmen Villacís (simulado)" readonly></div>'+
+      '</div>'+
+      '<div><label class="etiqueta">Tipo de atención *</label><select class="campo" id="at-tipo">'+
+        TIPOS_ATENCION.map(function(t){ return '<option'+(D.tipo===t?" selected":"")+'>'+esc(t)+'</option>'; }).join("")+
+        '</select><p class="aviso-campo">⚠ Catálogo por validar con Proaudio (D-23)</p></div>'+
+      '<div><label class="etiqueta">Observación de esta atención *</label>'+
+        '<textarea class="campo" id="at-obs" rows="4" placeholder="Qué se realizó y qué se observó…">'+esc(D.observacion)+'</textarea>'+
+        '<p class="ayuda">ℹ Esta observación se agrega al historial. No reemplaza ninguna anterior.</p></div>'+
+      '<div><label class="etiqueta">Indicación entregada al paciente</label>'+
+        '<textarea class="campo" id="at-ind" rows="2" placeholder="Qué se le indicó hacer…">'+esc(D.indicacion)+'</textarea></div>'+
+      '<button class="zona-archivo'+(D.adjunto?" puesto":"")+'" style="flex-direction:row" data-act="at-adjunto">'+
+        ico(D.adjunto?"clip":"subir",16)+
+        (D.adjunto ? 'Documento simulado adjuntado: '+esc(D.adjunto)+' (clic para quitar)'
+                   : 'Adjuntar documento simulado (ej.: resultado de audiometría — nada se guarda realmente)')+'</button>'+
+      '<div class="caja-gris"><h3 style="margin-bottom:8px;font-size:14px;font-weight:700;color:var(--s700)">¿Qué sigue?</h3>'+
+        '<label class="linea-radio" style="margin-bottom:8px"><input type="checkbox" id="at-sin"'+
+          (D.sinSeguimiento?" checked":"")+' data-act="at-sinseg"> No requiere seguimiento</label>'+
+        bloqueSeguimiento+
+        '<p class="ayuda">Al guardar se creará una tarea en el Centro de Recordatorios para el responsable elegido'+
+        (cita ? ' y la cita de hoy quedará marcada como Completada' : '')+'.</p></div>'+
+      (UI.modalError ? '<p class="error">'+esc(UI.modalError)+'</p>' : '')+
+      '<div class="pie-modal"><button class="btn-secundario" data-act="volver">Cancelar</button>'+
+        '<button class="btn-primario" data-act="at-guardar" data-arg="'+(cita?cita.id:"")+'">Guardar '+
+        (cita ? 'y marcar cita como atendida' : 'atención')+'</button></div>'+
+    '</section></div>';
+}
+
+/* ==== MARCADOR-PANTALLAS ==== */
+/* =========================================================================
+   12. MODALES
+   ========================================================================= */
+function cajaModal(titulo, cuerpo, chica){
+  return '<div class="fondo" data-cerrar-modal="1"><div class="caja'+(chica?" chica":"")+'">'+
+    '<div class="caja-cab"><h2>'+esc(titulo)+'</h2>'+
+    '<button class="cerrar" data-act="cerrar-modal" aria-label="Cerrar">'+ico("equis",20)+'</button></div>'+
+    '<div class="caja-cuerpo">'+cuerpo+'</div></div></div>';
+}
+function pieModal(etiqueta, accion, arg){
+  return (UI.modalError ? '<p class="error">'+esc(UI.modalError)+'</p>' : '')+
+    '<div class="pie-modal"><button class="btn-secundario" data-act="cerrar-modal">Cancelar</button>'+
+    '<button class="btn-primario" data-act="'+accion+'"'+(arg!==undefined?' data-arg="'+esc(arg)+'"':'')+'>'+esc(etiqueta)+'</button></div>';
+}
+function opcionesSelect(lista, valor, obtenerValor, obtenerTexto){
+  return lista.map(function(x){
+    var v = obtenerValor ? obtenerValor(x) : x;
+    var t = obtenerTexto ? obtenerTexto(x) : x;
+    return '<option value="'+esc(v)+'"'+(valor===v?" selected":"")+'>'+esc(t)+'</option>';
+  }).join("");
+}
+
+/* ── Posibles duplicados (paciente nuevo) ───────────────────────────────── */
+function calcularDuplicados(nombres, apellidos, telefono, documento){
+  var na = normalizar(apellidos), nn = normalizar(nombres);
+  var nt = String(telefono||"").replace(/\D/g,""), nd = normalizar(documento);
+  if(na.length < 3 && nt.length < 7 && nd.length < 5) return [];
+  return S.pacientes.filter(function(p){
+    var ca = na.length >= 3 && normalizar(p.apellidos).indexOf(na) >= 0;
+    var cn = nn.length >= 3 && normalizar(p.nombres).indexOf(nn) >= 0;
+    var ct = nt.length >= 7 && p.telefono.replace(/\D/g,"").indexOf(nt) >= 0;
+    var cd = nd.length >= 5 && normalizar(p.documento||"").indexOf(nd) >= 0;
+    return ca || (cn && ca) || ct || cd;
+  });
+}
+function htmlDuplicados(){
+  var D = UI.modalDatos;
+  if(D.descartarAviso) return "";
+  var dup = calcularDuplicados(D.nombres, D.apellidos, D.telefono, D.documento);
+  if(dup.length === 0) return "";
+  return '<div class="aviso-dup"><div class="fila" style="margin-bottom:8px;font-size:14px;font-weight:600;color:var(--am900)">'+
+    ico("alerta",16)+'¿Es alguna de estas personas? (advertencia — la fusión nunca es automática)</div>'+
+    dup.slice(0,3).map(function(p){
+      return '<div class="dup-item"><div><b>'+esc(p.apellidos)+', '+esc(p.nombres)+'</b> '+
+        '<span style="color:var(--s500)">· '+esc(p.id)+' · '+esc(p.telefono)+' · últ. visita '+esc(fechaCorta(p.ultimaVisita))+'</span></div>'+
+        '<button class="btn-suave" data-act="usar-ficha" data-arg="'+p.id+'">Usar esta ficha</button></div>';
+    }).join("")+
+    '<button style="margin-top:6px;font-size:12px;font-weight:700;color:var(--am800);text-decoration:underline" '+
+    'data-act="descartar-dup">No, es una persona distinta — continuar</button></div>';
+}
+
+/* ── Modal: paciente nuevo ──────────────────────────────────────────────── */
+function modalPaciente(){
+  var D = UI.modalDatos;
+  var opcionales = !D.verOpcionales ? "" :
+    '<div class="cuerpo campos2">'+
+      '<div><label class="etiqueta">Cédula o documento (opcional)</label>'+
+        '<input class="campo" id="pf-doc" value="'+esc(D.documento)+'" placeholder="DOC-FICT-000"></div>'+
+      '<div><label class="etiqueta">Teléfono 2</label><input class="campo" id="pf-tel2" value="'+esc(D.telefono2)+'"></div>'+
+      '<div><label class="etiqueta">Correo</label>'+
+        '<input class="campo" id="pf-correo" value="'+esc(D.correo)+'" placeholder="ejemplo@prototipo.invalid"></div>'+
+      '<div><label class="etiqueta">Ciudad</label><input class="campo" id="pf-ciudad" value="'+esc(D.ciudad)+'"></div>'+
+      '<div><label class="etiqueta">Fecha de nacimiento</label>'+
+        '<input type="date" class="campo" id="pf-nac" value="'+esc(D.fechaNacimiento)+'"></div>'+
+      '<div><label class="etiqueta">¿Cómo conoció Proaudio?</label><select class="campo" id="pf-como">'+
+        '<option value="">— Sin registrar —</option>'+opcionesSelect(COMO_CONOCIO, D.comoConocio)+
+        '</select><p class="aviso-campo">⚠ Lista provisional — por validar</p></div>'+
+      '<div><label class="etiqueta">¿Quién lo refirió?</label><input class="campo" id="pf-ref" value="'+esc(D.referidoPor)+'"></div>'+
+      '<div><label class="etiqueta">Audióloga responsable</label><select class="campo" id="pf-prof">'+
+        '<option value="">— Sin asignar —</option>'+
+        opcionesSelect(PROFESIONALES.filter(function(x){return x.atiende;}), D.profesionalId,
+          function(x){return x.id;}, function(x){return x.nombre;})+'</select></div>'+
+      '<div><label class="etiqueta">Nº de ficha física (dato separado)</label>'+
+        '<input class="campo" id="pf-ficha" value="'+esc(D.fichaFisica)+'"></div>'+
+      '<div class="ancho2"><label class="etiqueta">Notas</label>'+
+        '<textarea class="campo" id="pf-notas" rows="2">'+esc(D.notas)+'</textarea></div>'+
+    '</div>';
+
+  var cuerpo =
+    '<div class="caja-gris"><div class="tit-mini">Datos necesarios</div>'+
+      '<div class="campos2">'+
+        '<div><label class="etiqueta">Nombres *</label><input class="campo dup-watch" id="pf-nombres" value="'+esc(D.nombres)+'"></div>'+
+        '<div><label class="etiqueta">Apellidos *</label><input class="campo dup-watch" id="pf-apellidos" value="'+esc(D.apellidos)+'"></div>'+
+        '<div><label class="etiqueta">Teléfono principal *</label>'+
+          '<input class="campo dup-watch" id="pf-telefono" value="'+esc(D.telefono)+'" placeholder="099-000-0000 (ficticio)"></div>'+
+        '<div><label class="etiqueta">Sucursal * (preseleccionada)</label><select class="campo" id="pf-suc">'+
+          opcionesSelect(SUCURSALES, D.sucursalId, function(s){return s.id;}, function(s){return s.nombre;})+'</select></div>'+
+      '</div>'+
+      '<p class="ayuda">El código interno (PAC-…) lo genera el sistema. La cédula es opcional y no es el '+
+        'identificador definitivo (decisión D-01 por validar).</p></div>'+
+    '<div id="zona-dup">'+htmlDuplicados()+'</div>'+
+    '<div class="plegable"><button data-act="pf-opcionales">Datos adicionales (opcionales — se pueden completar después)'+
+      ico(D.verOpcionales?"chevArr":"chevAbj",16)+'</button>'+opcionales+'</div>'+
+    '<label class="linea-radio"><input type="checkbox" id="pf-agendar"'+(D.agendarDespues?" checked":"")+
+      '> Agendar primera cita después de guardar</label>'+
+    pieModal("Guardar paciente","pf-guardar");
+  return cajaModal("Paciente nuevo", cuerpo);
+}
+
+/* ── Modal: nueva cita ──────────────────────────────────────────────────── */
+function modalCita(){
+  var D = UI.modalDatos;
+  var p = D.pacienteId ? buscarPaciente(D.pacienteId) : null;
+  var buscador = "";
+  if(!p){
+    var q = String(D.busqueda||"").toLowerCase().trim();
+    var res = q.length < 2 ? [] : S.pacientes.filter(function(x){
+      return (x.nombres+" "+x.apellidos).toLowerCase().indexOf(q) >= 0
+          || x.id.toLowerCase().indexOf(q) >= 0 || x.telefono.indexOf(q) >= 0;
+    }).slice(0,5);
+    buscador = '<div><label class="etiqueta">Paciente *</label>'+
+      '<input class="campo" id="cf-busq" placeholder="Buscar por nombre, código o teléfono…" value="'+esc(D.busqueda||"")+'">'+
+      (res.length ? '<div class="res-busq">'+res.map(function(x){
+        return '<button data-act="cf-elegir" data-arg="'+x.id+'"><b>'+esc(x.apellidos)+', '+esc(x.nombres)+'</b> '+
+          '<span style="color:var(--s500)">· '+esc(x.id)+' · '+esc(x.telefono)+'</span></button>';
+      }).join("")+'</div>' : '')+'</div>';
+  }
+  var tarjetaPac = p ? '<div class="caja-gris" style="font-size:14px"><div class="fila-sep" style="align-items:center">'+
+    '<div><b>'+esc(nombreCompleto(p))+'</b> <span style="color:var(--s500)">· '+esc(p.id)+' · '+esc(p.telefono)+'</span>'+
+    '<div class="mini">Últ. visita: '+esc(fechaCorta(p.ultimaVisita))+'</div></div>'+
+    (D.fijo ? '' : '<button class="btn-suave" data-act="cf-cambiar">Cambiar</button>')+'</div>'+
+    (p.alerta ? '<div style="margin-top:8px">'+alerta(esc(p.alerta)+' — aprovechar el contacto para mencionarlo.')+'</div>' : '')+
+    '</div>' : "";
+
+  var cuerpo = buscador + tarjetaPac +
+    '<div class="campos2">'+
+      '<div><label class="etiqueta">Fecha *</label><input type="date" class="campo" id="cf-fecha" value="'+esc(D.fecha)+'"></div>'+
+      '<div><label class="etiqueta">Hora *</label><input type="time" class="campo" id="cf-hora" value="'+esc(D.hora)+'"></div>'+
+      '<div><label class="etiqueta">Duración</label><select class="campo" id="cf-dur">'+
+        [30,45,60].map(function(n){ return '<option value="'+n+'"'+(D.duracion===n?" selected":"")+'>'+n+' minutos</option>'; }).join("")+
+        '</select></div>'+
+      '<div><label class="etiqueta">Sucursal *</label><select class="campo" id="cf-suc">'+
+        opcionesSelect(SUCURSALES, D.sucursalId, function(s){return s.id;}, function(s){return s.nombre;})+'</select></div>'+
+      '<div><label class="etiqueta">Profesional *</label><select class="campo" id="cf-prof">'+
+        opcionesSelect(PROFESIONALES.filter(function(x){return x.atiende;}), D.profesionalId,
+          function(x){return x.id;}, function(x){return x.nombre;})+'</select></div>'+
+      '<div><label class="etiqueta">Motivo *</label><select class="campo" id="cf-motivo">'+
+        opcionesSelect(MOTIVOS_CITA, D.motivo)+'</select>'+
+        '<p class="aviso-campo">⚠ Lista provisional — debe validarse con Proaudio (D-02)</p></div>'+
+      '<div class="ancho2"><label class="etiqueta">Notas</label><input class="campo" id="cf-notas" value="'+esc(D.notas||"")+'"></div>'+
+    '</div>'+
+    '<div class="caja-gris" style="font-size:12px;color:var(--s600)"><b style="color:var(--s700)">Recordatorios asociados (simulados)</b><br>'+
+      'Recordar al paciente 1 día antes · Confirmar 2 días antes — se podrán editar, posponer o cancelar. '+
+      'El envío por WhatsApp o correo es <b>Fase futura</b>.</div>'+
+    pieModal("Guardar cita","cf-guardar");
+  return cajaModal("Nueva cita", cuerpo);
+}
+
+/* ── Modal: registrar contacto ──────────────────────────────────────────── */
+function modalContacto(){
+  var D = UI.modalDatos;
+  var p = buscarPaciente(D.pacienteId);
+  var canales = ["Llamada","Presencial"].map(function(c){
+    return '<button class="opcion'+(D.canal===c?" on":"")+'" style="font-weight:600" data-act="ct-canal" data-arg="'+c+'">'+c+'</button>';
+  }).join("")+
+    '<span class="opcion" style="color:var(--s400);background:var(--s50)">WhatsApp '+badgeFaseFutura()+'</span>'+
+    '<span class="opcion" style="color:var(--s400);background:var(--s50)">Correo '+badgeFaseFutura()+'</span>';
+  var resultados = RESULTADOS_CONTACTO.map(function(r){
+    return '<label class="opcion'+(D.resultado===r?" on":"")+'"><input type="radio" name="res-contacto"'+
+      (D.resultado===r?" checked":"")+' data-act="ct-resultado" data-arg="'+esc(r)+'"> '+esc(r)+'</label>';
+  }).join("");
+  var cuerpo =
+    '<p class="mini">Este registro es manual. El prototipo no realiza llamadas ni envía mensajes.</p>'+
+    '<div><label class="etiqueta">Canal</label><div class="fila">'+canales+'</div></div>'+
+    '<div><label class="etiqueta">Resultado *</label><div class="opciones-rej">'+resultados+'</div></div>'+
+    '<div><label class="etiqueta">Nota</label><textarea class="campo" id="ct-nota" rows="2">'+esc(D.nota||"")+'</textarea></div>'+
+    '<div><label class="etiqueta">¿Programar nuevo seguimiento?</label><div class="fila" style="font-size:14px">'+
+      ['no','7dias','otra'].map(function(s){
+        var t = s==='no'?'No' : s==='7dias'?'En 7 días' : 'Otra fecha:';
+        return '<label class="linea-radio"><input type="radio" name="seg-contacto"'+(D.seguimiento===s?" checked":"")+
+          ' data-act="ct-seg" data-arg="'+s+'"> '+t+'</label>';
+      }).join("")+
+      (D.seguimiento === "otra" ? '<input type="date" class="campo auto" id="ct-fecha" value="'+esc(D.fechaOtra)+'">' : '')+
+    '</div></div>'+
+    (D.resultado === "Agendó cita" ? '<p style="border-radius:8px;background:var(--sk50);color:var(--sk800);padding:8px 12px;font-size:14px">'+
+      'Al guardar se abrirá el formulario de cita para este paciente.</p>' : '')+
+    pieModal("Guardar contacto","ct-guardar");
+  return cajaModal("Registrar contacto — "+(p?nombreCompleto(p):""), cuerpo);
+}
+
+/* ── Modal genérico: exige motivo escrito ───────────────────────────────── */
+function modalMotivo(){
+  var D = UI.modalDatos;
+  var cuerpo = (D.descripcion ? '<p style="font-size:14px;color:var(--s600)">'+esc(D.descripcion)+'</p>' : '')+
+    (D.opciones
+      ? '<div>'+D.opciones.map(function(o){
+          return '<label class="linea-radio"><input type="radio" name="motivo-op"'+(D.opcion===o?" checked":"")+
+            ' data-act="mo-opcion" data-arg="'+esc(o)+'"> '+esc(o)+'</label>';
+        }).join("")+
+        (D.opcion === "Otro" ? '<input class="campo" id="mo-texto" placeholder="Especifique el motivo…" value="'+esc(D.texto||"")+'">' : '')+'</div>'
+      : '<textarea class="campo" id="mo-texto" rows="3" placeholder="Motivo…">'+esc(D.texto||"")+'</textarea>')+
+    '<p class="ayuda">ℹ Los eventos históricos no desaparecen silenciosamente: esta acción queda registrada con autor y motivo.</p>'+
+    pieModal(D.etiquetaBoton, "mo-confirmar");
+  return cajaModal(D.titulo, cuerpo, true);
+}
+
+/* ── Modal: reagendar ───────────────────────────────────────────────────── */
+function modalReagendar(){
+  var D = UI.modalDatos;
+  var c = buscarCita(D.citaId); if(!c) return "";
+  var p = buscarPaciente(c.pacienteId);
+  var opciones = ["Solicitado por el paciente","Solicitado por Proaudio","El paciente no pudo asistir","Otro"];
+  var cuerpo =
+    '<p style="font-size:14px;color:var(--s600)"><b>'+esc(nombreCompleto(p))+'</b> · '+esc(c.fecha)+' '+esc(c.hora)+' · '+esc(c.motivo)+'</p>'+
+    '<div class="campos2">'+
+      '<div><label class="etiqueta">Nueva fecha</label><input type="date" class="campo" id="rg-fecha" value="'+esc(D.fecha||c.fecha)+'"></div>'+
+      '<div><label class="etiqueta">Nueva hora</label><input type="time" class="campo" id="rg-hora" value="'+esc(D.hora||c.hora)+'"></div>'+
+    '</div>'+
+    '<div><label class="etiqueta">Profesional</label><select class="campo" id="rg-prof">'+
+      opcionesSelect(PROFESIONALES.filter(function(x){return x.atiende;}), D.profesionalId||c.profesionalId,
+        function(x){return x.id;}, function(x){return x.nombre;})+'</select></div>'+
+    '<div><label class="etiqueta">Motivo del reagendamiento *</label>'+
+      opciones.map(function(o){
+        return '<label class="linea-radio"><input type="radio" name="rg-motivo"'+(D.motivo===o?" checked":"")+
+          ' data-act="rg-opcion" data-arg="'+esc(o)+'"> '+esc(o)+'</label>';
+      }).join("")+
+      (D.motivo === "Otro" ? '<input class="campo" id="rg-otro" placeholder="Especifique…" value="'+esc(D.otro||"")+'">' : '')+
+    '</div>'+
+    '<p class="ayuda">ℹ La cita original queda registrada en el historial con su motivo.</p>'+
+    pieModal("Confirmar","rg-confirmar");
+  return cajaModal("Reagendar cita", cuerpo, true);
+}
+
+/* ── Modal: crear recordatorio ──────────────────────────────────────────── */
+function modalRecordatorio(){
+  var D = UI.modalDatos;
+  var p = D.pacienteId ? buscarPaciente(D.pacienteId) : null;
+  var tipos = ["Llamada humana pendiente","Control periódico","Audiometría anual",
+               "Garantía próxima a vencer","Cita pendiente de confirmación","Otro"];
+  var cuerpo =
+    '<div><label class="etiqueta">Tipo</label><select class="campo" id="rf-tipo">'+opcionesSelect(tipos, D.tipo)+'</select></div>'+
+    '<div><label class="etiqueta">Motivo *</label><textarea class="campo" id="rf-motivo" rows="2">'+esc(D.motivo||"")+'</textarea></div>'+
+    '<div class="campos2">'+
+      '<div><label class="etiqueta">Fecha prevista</label><input type="date" class="campo" id="rf-fecha" value="'+esc(D.fecha)+'"></div>'+
+      '<div><label class="etiqueta">Prioridad</label><select class="campo" id="rf-prio">'+
+        opcionesSelect(["Alta","Media","Baja"], D.prioridad)+'</select></div>'+
+    '</div>'+
+    '<div><label class="etiqueta">Responsable</label><select class="campo" id="rf-resp">'+
+      opcionesSelect(PROFESIONALES, D.responsableId, function(x){return x.id;}, function(x){return x.nombre;})+'</select></div>'+
+    pieModal("Guardar","rf-guardar");
+  return cajaModal("Crear recordatorio"+(p ? " — "+nombreCompleto(p) : ""), cuerpo, true);
+}
+
+/* ── Modal: cargar documento ────────────────────────────────────────────── */
+function modalDocumento(){
+  var D = UI.modalDatos;
+  var p = buscarPaciente(D.pacienteId);
+  var cuerpo =
+    '<button class="zona-archivo'+(D.archivo?" puesto":"")+'" data-act="doc-archivo">'+
+      ico(D.archivo?"clip":"subir",22)+
+      (D.archivo ? 'Archivo simulado adjuntado: '+esc(D.archivo) : 'Simular selección de archivo (ninguno se guarda realmente)')+'</button>'+
+    '<div><label class="etiqueta">Tipo de documento *</label><select class="campo" id="dc-tipo">'+
+      opcionesSelect(TIPOS_DOCUMENTO, D.tipo)+'</select>'+
+      '<p class="aviso-campo">⚠ Lista provisional — validar con Proaudio</p></div>'+
+    '<div><label class="etiqueta">Título *</label>'+
+      '<input class="campo" id="dc-titulo" value="'+esc(D.titulo||"")+'" placeholder="Ej.: Cartilla física — página 2"></div>'+
+    '<div><label class="etiqueta">Fecha del documento (del contenido, no de hoy)</label>'+
+      '<input type="date" class="campo" id="dc-fecha" value="'+esc(D.fechaDoc||"")+'"></div>'+
+    '<p class="ayuda">El estado de digitalización de la ficha es meramente visual en esta versión '+
+      '(estados simples; sin porcentajes — ver addendum, punto 7).</p>'+
+    pieModal("Guardar documento","dc-guardar");
+  return cajaModal("Cargar documento (simulado) — "+(p?nombreCompleto(p):""), cuerpo, true);
+}
+
+/* ── Modales pequeños de recordatorio ───────────────────────────────────── */
+function modalEditarRec(){
+  var D = UI.modalDatos;
+  var cuerpo =
+    '<div><label class="etiqueta">Motivo</label><textarea class="campo" id="er-motivo" rows="3">'+esc(D.motivo)+'</textarea></div>'+
+    '<div class="campos2">'+
+      '<div><label class="etiqueta">Fecha prevista</label><input type="date" class="campo" id="er-fecha" value="'+esc(D.fecha)+'"></div>'+
+      '<div><label class="etiqueta">Prioridad</label><select class="campo" id="er-prio">'+
+        opcionesSelect(["Alta","Media","Baja"], D.prioridad)+'</select></div>'+
+    '</div>'+pieModal("Guardar","er-guardar");
+  return cajaModal("Editar recordatorio", cuerpo, true);
+}
+function modalPosponer(){
+  var D = UI.modalDatos;
+  var r = buscarRec(D.recId);
+  var cuerpo = '<p style="font-size:14px;color:var(--s600)">'+esc(r?r.tipo:"")+' — nueva fecha prevista:</p>'+
+    '<input type="date" class="campo" id="pp-fecha" value="'+esc(D.fecha)+'">'+
+    pieModal("Posponer","pp-guardar");
+  return cajaModal("Posponer recordatorio", cuerpo, true);
+}
+function modalReasignar(){
+  var D = UI.modalDatos;
+  var cuerpo = '<select class="campo" id="rs-resp">'+
+    opcionesSelect(PROFESIONALES, D.responsableId, function(x){return x.id;}, function(x){return x.nombre+" — "+x.rol;})+
+    '</select>'+pieModal("Reasignar","rs-guardar");
+  return cajaModal("Reasignar responsable", cuerpo, true);
+}
+
+/* ── Modal: editar datos del paciente ───────────────────────────────────── */
+function modalEditarPaciente(){
+  var D = UI.modalDatos;
+  var cuerpo =
+    '<div><label class="etiqueta">Teléfono principal</label><input class="campo" id="ep-tel" value="'+esc(D.telefono)+'"></div>'+
+    '<div><label class="etiqueta">Ciudad</label><input class="campo" id="ep-ciudad" value="'+esc(D.ciudad)+'"></div>'+
+    '<div><label class="etiqueta">Notas administrativas</label>'+
+      '<textarea class="campo" id="ep-notas" rows="2">'+esc(D.notas)+'</textarea></div>'+
+    '<p class="ayuda">En el sistema real, todo cambio quedará registrado con autor y fecha (trazabilidad).</p>'+
+    pieModal("Guardar","ep-guardar");
+  return cajaModal("Editar datos básicos — "+esc(D.pacienteId), cuerpo, true);
+}
+
+function renderModal(){
+  if(!UI.modal) return "";
+  switch(UI.modal){
+    case "paciente":      return modalPaciente();
+    case "cita":          return modalCita();
+    case "contacto":      return modalContacto();
+    case "motivo":        return modalMotivo();
+    case "reagendar":     return modalReagendar();
+    case "recordatorio":  return modalRecordatorio();
+    case "documento":     return modalDocumento();
+    case "editarRec":     return modalEditarRec();
+    case "posponer":      return modalPosponer();
+    case "reasignar":     return modalReasignar();
+    case "editarPac":     return modalEditarPaciente();
+    default: return "";
+  }
+}
+
+/* ==== MARCADOR-MODALES ==== */
+/* =========================================================================
+   13. RENDERIZADO Y NAVEGACIÓN
+   ========================================================================= */
+var app = document.getElementById("app");
+
+function pantallaActual(){
+  switch(UI.ruta){
+    case "agenda":        return pantallaAgenda();
+    case "recordatorios": return pantallaRecordatorios();
+    case "pacientes":     return pantallaPacientes();
+    case "ficha":         return pantallaFicha();
+    case "atencion":      return pantallaAtencion();
+    default:              return pantallaInicio();
+  }
+}
+
+function render(){
+  var activo = document.activeElement;
+  var idActivo = activo && activo.id ? activo.id : null;
+  var pos = null;
+  if(idActivo && activo.selectionStart !== undefined && activo.selectionStart !== null){
+    try { pos = activo.selectionStart; } catch(e){ pos = null; }
+  }
+
+  app.innerHTML = cabecera() + '<main>' + pantallaActual() + '</main>' + renderModal();
+
+  if(idActivo){
+    var nuevo = document.getElementById(idActivo);
+    if(nuevo && typeof nuevo.focus === "function"){
+      nuevo.focus();
+      if(pos !== null && nuevo.setSelectionRange){
+        try { nuevo.setSelectionRange(pos, pos); } catch(e){}
+      }
+    }
+  }
+  window.scrollTo(0, UI.scrollY || 0);
+}
+
+UI.historial = [];
+function instantanea(){
+  return {ruta:UI.ruta, pacienteId:UI.pacienteId, citaIdParam:UI.citaIdParam,
+          destacar:UI.destacar, pestania:UI.ficha.pestania};
+}
+function irA(ruta, opciones){
+  UI.historial.push(instantanea());
+  if(UI.historial.length > 30) UI.historial.shift();
+  UI.ruta = ruta;
+  UI.pacienteId = opciones && opciones.pacienteId ? opciones.pacienteId : null;
+  UI.citaIdParam = opciones && opciones.citaId ? opciones.citaId : null;
+  UI.destacar = opciones && opciones.destacar ? opciones.destacar : null;
+  UI.ficha.pestania = "Resumen";
+  UI.ficha.filtroTl = "Todo";
+  UI.agenda.citaAbierta = null;
+  /* Al entrar a la agenda desde el menú siempre se aterriza en el día de hoy. */
+  if(ruta === "agenda"){ UI.agenda.fecha = HOY; UI.agenda.vista = "dia"; }
+  /* La lista de pacientes se limpia, salvo que venga del buscador de la cabecera. */
+  if(ruta === "pacientes" && !(opciones && opciones.mantenerBusqueda)) UI.pacientes.q = "";
+  UI.scrollY = 0;
+  UI.modalDatos = {};
+  UI.modalError = "";
+  render();
+}
+function volver(){
+  var s = UI.historial.pop();
+  if(s){
+    UI.ruta = s.ruta; UI.pacienteId = s.pacienteId; UI.citaIdParam = s.citaIdParam;
+    UI.destacar = s.destacar; UI.ficha.pestania = s.pestania || "Resumen";
+  } else {
+    UI.ruta = "inicio"; UI.pacienteId = null;
+  }
+  UI.agenda.citaAbierta = null; UI.modal = null; UI.modalDatos = {}; UI.modalError = ""; UI.scrollY = 0;
+  render();
+}
+function abrirModal(tipo, datos){
+  capturarPantalla();
+  UI.modal = tipo;
+  UI.modalDatos = datos || {};
+  UI.modalError = "";
+  render();
+}
+function cerrarModal(){
+  UI.modal = null; UI.modalDatos = {}; UI.modalError = ""; render();
+}
+
+/* ── Captura de lo escrito antes de volver a dibujar ─────────────────────── */
+function val(id){ var e = document.getElementById(id); return e ? e.value : undefined; }
+function chk(id){ var e = document.getElementById(id); return e ? e.checked : undefined; }
+function fijar(D, clave, id){ var v = val(id); if(v !== undefined) D[clave] = v; }
+
+function capturarModal(){
+  var D = UI.modalDatos;
+  if(!UI.modal) return;
+  if(UI.modal === "paciente"){
+    fijar(D,"nombres","pf-nombres"); fijar(D,"apellidos","pf-apellidos");
+    fijar(D,"telefono","pf-telefono"); fijar(D,"sucursalId","pf-suc");
+    fijar(D,"documento","pf-doc"); fijar(D,"telefono2","pf-tel2"); fijar(D,"correo","pf-correo");
+    fijar(D,"ciudad","pf-ciudad"); fijar(D,"fechaNacimiento","pf-nac"); fijar(D,"comoConocio","pf-como");
+    fijar(D,"referidoPor","pf-ref"); fijar(D,"profesionalId","pf-prof");
+    fijar(D,"fichaFisica","pf-ficha"); fijar(D,"notas","pf-notas");
+    var a = chk("pf-agendar"); if(a !== undefined) D.agendarDespues = a;
+  }
+  if(UI.modal === "cita"){
+    fijar(D,"busqueda","cf-busq"); fijar(D,"fecha","cf-fecha"); fijar(D,"hora","cf-hora");
+    var d = val("cf-dur"); if(d !== undefined) D.duracion = +d;
+    fijar(D,"sucursalId","cf-suc"); fijar(D,"profesionalId","cf-prof");
+    fijar(D,"motivo","cf-motivo"); fijar(D,"notas","cf-notas");
+  }
+  if(UI.modal === "contacto"){ fijar(D,"nota","ct-nota"); fijar(D,"fechaOtra","ct-fecha"); }
+  if(UI.modal === "motivo"){ fijar(D,"texto","mo-texto"); }
+  if(UI.modal === "reagendar"){ fijar(D,"fecha","rg-fecha"); fijar(D,"hora","rg-hora");
+    fijar(D,"profesionalId","rg-prof"); fijar(D,"otro","rg-otro"); }
+  if(UI.modal === "recordatorio"){ fijar(D,"tipo","rf-tipo"); fijar(D,"motivo","rf-motivo");
+    fijar(D,"fecha","rf-fecha"); fijar(D,"prioridad","rf-prio"); fijar(D,"responsableId","rf-resp"); }
+  if(UI.modal === "documento"){ fijar(D,"tipo","dc-tipo"); fijar(D,"titulo","dc-titulo"); fijar(D,"fechaDoc","dc-fecha"); }
+  if(UI.modal === "editarRec"){ fijar(D,"motivo","er-motivo"); fijar(D,"fecha","er-fecha"); fijar(D,"prioridad","er-prio"); }
+  if(UI.modal === "posponer"){ fijar(D,"fecha","pp-fecha"); }
+  if(UI.modal === "reasignar"){ fijar(D,"responsableId","rs-resp"); }
+  if(UI.modal === "editarPac"){ fijar(D,"telefono","ep-tel"); fijar(D,"ciudad","ep-ciudad"); fijar(D,"notas","ep-notas"); }
+}
+function capturarPantalla(){
+  if(UI.ruta === "atencion" && !UI.modal){
+    var D = UI.modalDatos;
+    fijar(D,"tipo","at-tipo"); fijar(D,"observacion","at-obs"); fijar(D,"indicacion","at-ind");
+    fijar(D,"proximaAccion","at-proxima"); fijar(D,"fechaSeguimiento","at-fecha");
+    fijar(D,"responsableId","at-resp");
+  }
+}
+function capturarTodo(){ if(UI.modal) capturarModal(); else capturarPantalla(); }
+
+/* =========================================================================
+   14. EVENTOS
+   ========================================================================= */
+document.addEventListener("click", function(ev){
+  var cerrarFondo = ev.target.getAttribute && ev.target.getAttribute("data-cerrar-modal");
+  if(cerrarFondo){ capturarModal(); cerrarModal(); return; }
+  var cerrarPanel = ev.target.getAttribute && ev.target.getAttribute("data-cerrar-panel");
+  if(cerrarPanel){ UI.agenda.citaAbierta = null; render(); return; }
+
+  var nodo = ev.target.closest ? ev.target.closest("[data-act]") : null;
+  if(!nodo) return;
+  var act = nodo.getAttribute("data-act");
+  var arg = nodo.getAttribute("data-arg");
+  if(nodo.tagName === "SELECT") return;      // los selects se tratan en "change"
+  if(nodo.tagName === "A") ev.preventDefault();
+  UI.scrollY = window.scrollY;
+
+  switch(act){
+
+    /* ── Navegación ─────────────────────────────────────────────────── */
+    case "ir":        irA(arg); break;
+    case "volver":    volver(); break;
+    case "ficha":     irA("ficha", {pacienteId:arg}); break;
+    case "atencion": {
+      var t = String(arg).split("|");
+      irA("atencion", {pacienteId:t[0], citaId:t[1] || null});
+      break;
+    }
+    case "ir-rec":    irA("recordatorios", {destacar:arg}); break;
+
+    /* ── Agenda ─────────────────────────────────────────────────────── */
+    case "ag-vista":  UI.agenda.vista = arg; render(); break;
+    case "ag-hoy":    UI.agenda.fecha = HOY; render(); break;
+    case "ag-dia":    UI.agenda.fecha = arg; UI.agenda.vista = "dia"; render(); break;
+    case "ag-abrir":  UI.agenda.citaAbierta = arg; render(); break;
+    case "cerrar-panel": UI.agenda.citaAbierta = null; render(); break;
+    case "ag-mover": {
+      var dir = +arg;
+      if(UI.agenda.vista === "dia") UI.agenda.fecha = sumarDias(UI.agenda.fecha, dir);
+      else if(UI.agenda.vista === "semana") UI.agenda.fecha = sumarDias(UI.agenda.fecha, 7*dir);
+      else {
+        var pm = partes(UI.agenda.fecha);
+        UI.agenda.fecha = aISO(new Date(pm.y, pm.m-1+dir, 1));
+      }
+      render(); break;
+    }
+    case "cita-confirmar": cambiarEstadoCita(arg, "Confirmada"); render(); break;
+
+    /* ── Pestañas ───────────────────────────────────────────────────── */
+    case "ficha-pest": UI.ficha.pestania = arg; render(); break;
+    case "tl-filtro":  UI.ficha.filtroTl = arg; render(); break;
+    case "rec-pest":   UI.recordatorios.pestania = arg; UI.destacar = null; render(); break;
+
+    /* ── Apertura de modales ────────────────────────────────────────── */
+    case "modal-paciente":
+      abrirModal("paciente", {nombres:"",apellidos:"",telefono:"",sucursalId:"SUC-01",
+        documento:"",telefono2:"",correo:"",ciudad:"",fechaNacimiento:"",comoConocio:"",
+        referidoPor:"",profesionalId:"",fichaFisica:"",notas:"",
+        verOpcionales:false, agendarDespues:true, descartarAviso:false});
+      break;
+    case "modal-cita":
+      abrirModal("cita", {pacienteId:null, busqueda:"", fecha:HOY, hora:"09:00", duracion:30,
+        sucursalId:"SUC-01", profesionalId:"PRO-01", motivo:MOTIVOS_CITA[1], notas:""});
+      break;
+    case "modal-cita-pac": {
+      var pp = buscarPaciente(arg);
+      abrirModal("cita", {pacienteId:arg, fijo:true, busqueda:"", fecha:HOY, hora:"09:00", duracion:30,
+        sucursalId:pp ? pp.sucursalId : "SUC-01",
+        profesionalId:(pp && pp.profesionalId) ? pp.profesionalId : "PRO-01",
+        motivo:MOTIVOS_CITA[1], notas:""});
+      break;
+    }
+    case "modal-contacto":
+      abrirModal("contacto", {pacienteId:arg, canal:"Llamada", resultado:"", nota:"",
+        seguimiento:"no", fechaOtra:sumarDias(HOY,7)});
+      break;
+    case "modal-contacto-rec": {
+      var rr = buscarRec(arg);
+      abrirModal("contacto", {pacienteId:rr.pacienteId, recordatorioId:rr.id, canal:"Llamada",
+        resultado:"", nota:"", seguimiento:"no", fechaOtra:sumarDias(HOY,7)});
+      break;
+    }
+    case "modal-recordatorio":
+      abrirModal("recordatorio", {tipo:"Llamada humana pendiente", motivo:"", fecha:HOY,
+        prioridad:"Media", responsableId:"PRO-03"});
+      break;
+    case "modal-recordatorio-pac":
+      abrirModal("recordatorio", {pacienteId:arg, tipo:"Llamada humana pendiente", motivo:"",
+        fecha:HOY, prioridad:"Media", responsableId:"PRO-03"});
+      break;
+    case "modal-documento":
+      abrirModal("documento", {pacienteId:arg, archivo:"", tipo:TIPOS_DOCUMENTO[0], titulo:"", fechaDoc:""});
+      break;
+    case "modal-reagendar":
+      abrirModal("reagendar", {citaId:arg, fecha:"", hora:"", profesionalId:"", motivo:"", otro:""});
+      break;
+    case "modal-cancelar-cita": {
+      var cc = buscarCita(arg);
+      abrirModal("motivo", {titulo:"Cancelar cita", accion:"cancelar-cita", citaId:arg,
+        descripcion: cc ? nombrePacienteId(cc.pacienteId)+" · "+fechaCorta(cc.fecha)+" "+cc.hora : "",
+        etiquetaBoton:"Cancelar la cita",
+        opciones:["Solicitado por el paciente","Solicitado por Proaudio","Otro"], opcion:"", texto:""});
+      break;
+    }
+    case "modal-noatendida":
+      abrirModal("motivo", {titulo:"Marcar cita como no atendida", accion:"no-atendida", citaId:arg,
+        descripcion:"Se registrará la inasistencia. Se sugiere crear una tarea de seguimiento desde la ficha.",
+        etiquetaBoton:"Marcar no atendida",
+        opciones:["No asistió, sin aviso previo","Avisó que no podía asistir","Otro"], opcion:"", texto:""});
+      break;
+    case "modal-cancelar-rec": {
+      var rc = buscarRec(arg);
+      abrirModal("motivo", {titulo:"Cancelar recordatorio", accion:"cancelar-rec", recId:arg,
+        descripcion: rc ? rc.tipo+(rc.pacienteId ? " · "+nombrePacienteId(rc.pacienteId) : "") : "",
+        etiquetaBoton:"Cancelar recordatorio", texto:""});
+      break;
+    }
+    case "modal-editar-rec": {
+      var re = buscarRec(arg);
+      abrirModal("editarRec", {recId:arg, motivo:re.motivo, fecha:re.fecha, prioridad:re.prioridad});
+      break;
+    }
+    case "modal-posponer": {
+      var rp = buscarRec(arg);
+      abrirModal("posponer", {recId:arg, fecha: rp.fecha > HOY ? rp.fecha : HOY});
+      break;
+    }
+    case "modal-reasignar": {
+      var rz = buscarRec(arg);
+      abrirModal("reasignar", {recId:arg, responsableId:rz.responsableId});
+      break;
+    }
+    case "modal-editar-pac": {
+      var pe = buscarPaciente(arg);
+      abrirModal("editarPac", {pacienteId:arg, telefono:pe.telefono, ciudad:pe.ciudad||"", notas:pe.notas||""});
+      break;
+    }
+    case "cerrar-modal": capturarModal(); cerrarModal(); break;
+
+    /* ── Formulario de paciente ─────────────────────────────────────── */
+    case "pf-opcionales":
+      capturarModal(); UI.modalDatos.verOpcionales = !UI.modalDatos.verOpcionales; render(); break;
+    case "descartar-dup":
+      capturarModal(); UI.modalDatos.descartarAviso = true; render(); break;
+    case "usar-ficha":
+      /* Nunca se fusionan fichas: solo se abre la existente. */
+      cerrarModal();
+      irA("ficha", {pacienteId:arg});
+      break;
+    case "pf-guardar": {
+      capturarModal();
+      var Dp = UI.modalDatos;
+      if(!String(Dp.nombres||"").trim() || !String(Dp.apellidos||"").trim() || !String(Dp.telefono||"").trim()){
+        UI.modalError = "Nombres, apellidos y teléfono principal son obligatorios."; render(); break;
+      }
+      var nuevoPac = crearPaciente({
+        nombres:Dp.nombres.trim(), apellidos:Dp.apellidos.trim(), telefono:Dp.telefono.trim(),
+        sucursalId:Dp.sucursalId, documento:(Dp.documento||"").trim(), telefono2:(Dp.telefono2||"").trim(),
+        correo:(Dp.correo||"").trim(), ciudad:(Dp.ciudad||"").trim(), fechaNacimiento:Dp.fechaNacimiento,
+        comoConocio:Dp.comoConocio, referidoPor:(Dp.referidoPor||"").trim(),
+        profesionalId:Dp.profesionalId, fichaFisica:(Dp.fichaFisica||"").trim(), notas:(Dp.notas||"").trim()
+      });
+      var quiereAgendar = Dp.agendarDespues;
+      cerrarModal();
+      if(quiereAgendar){
+        abrirModal("cita", {pacienteId:nuevoPac.id, fijo:true, busqueda:"", fecha:HOY, hora:"09:00",
+          duracion:30, sucursalId:nuevoPac.sucursalId, profesionalId:nuevoPac.profesionalId||"PRO-01",
+          motivo:MOTIVOS_CITA[0], notas:""});
+      } else irA("ficha", {pacienteId:nuevoPac.id});
+      break;
+    }
+
+    /* ── Formulario de cita ─────────────────────────────────────────── */
+    case "cf-elegir": {
+      capturarModal();
+      var px = buscarPaciente(arg);
+      UI.modalDatos.pacienteId = arg;
+      UI.modalDatos.sucursalId = px.sucursalId;
+      if(px.profesionalId) UI.modalDatos.profesionalId = px.profesionalId;
+      render(); break;
+    }
+    case "cf-cambiar":
+      capturarModal(); UI.modalDatos.pacienteId = null; UI.modalDatos.busqueda = ""; render(); break;
+    case "cf-guardar": {
+      capturarModal();
+      var Dc = UI.modalDatos;
+      if(!Dc.pacienteId){ UI.modalError = "Seleccione un paciente. Toda cita está vinculada a una ficha."; render(); break; }
+      if(!Dc.fecha || !Dc.hora){ UI.modalError = "La fecha y la hora son obligatorias."; render(); break; }
+      var citaNueva = crearCita({pacienteId:Dc.pacienteId, fecha:Dc.fecha, hora:Dc.hora,
+        duracionMin:Dc.duracion, profesionalId:Dc.profesionalId, sucursalId:Dc.sucursalId,
+        motivo:Dc.motivo, notas:(Dc.notas||"").trim()});
+      cerrarModal();
+      irA("ficha", {pacienteId:citaNueva.pacienteId});
+      break;
+    }
+
+    /* ── Contacto ───────────────────────────────────────────────────── */
+    case "ct-canal":     capturarModal(); UI.modalDatos.canal = arg; render(); break;
+    case "ct-resultado": capturarModal(); UI.modalDatos.resultado = arg; render(); break;
+    case "ct-seg":       capturarModal(); UI.modalDatos.seguimiento = arg; render(); break;
+    case "ct-guardar": {
+      capturarModal();
+      var Dt = UI.modalDatos;
+      if(!Dt.resultado){ UI.modalError = "Seleccione el resultado del contacto."; render(); break; }
+      registrarContacto({pacienteId:Dt.pacienteId, canal:Dt.canal, resultado:Dt.resultado,
+        nota:(Dt.nota||"").trim(), recordatorioId:Dt.recordatorioId});
+      if(Dt.seguimiento !== "no"){
+        crearRecordatorio({tipo:"Llamada de seguimiento", categoria:"Tarea para recepción",
+          pacienteId:Dt.pacienteId, motivo:"Nuevo intento de contacto (resultado anterior: "+Dt.resultado+").",
+          fecha: Dt.seguimiento === "7dias" ? sumarDias(HOY,7) : Dt.fechaOtra,
+          responsableId:"PRO-03", prioridad:"Media", canal:"Llamada"});
+      }
+      var agendo = Dt.resultado === "Agendó cita";
+      var pacCt = Dt.pacienteId;
+      cerrarModal();
+      if(agendo){
+        var pc = buscarPaciente(pacCt);
+        abrirModal("cita", {pacienteId:pacCt, fijo:true, busqueda:"", fecha:HOY, hora:"09:00", duracion:30,
+          sucursalId:pc.sucursalId, profesionalId:pc.profesionalId||"PRO-01", motivo:MOTIVOS_CITA[1], notas:""});
+      }
+      break;
+    }
+
+    /* ── Motivo genérico ────────────────────────────────────────────── */
+    case "mo-opcion": capturarModal(); UI.modalDatos.opcion = arg; render(); break;
+    case "mo-confirmar": {
+      capturarModal();
+      var Dm = UI.modalDatos;
+      var motivo = Dm.opciones ? (Dm.opcion === "Otro" ? String(Dm.texto||"").trim() : Dm.opcion)
+                               : String(Dm.texto||"").trim();
+      if(!motivo){ UI.modalError = "El motivo es obligatorio. Queda registrado en el historial."; render(); break; }
+      if(Dm.accion === "cancelar-cita") cambiarEstadoCita(Dm.citaId, "Cancelada", motivo);
+      if(Dm.accion === "no-atendida")   cambiarEstadoCita(Dm.citaId, "No atendida", motivo);
+      if(Dm.accion === "cancelar-rec")  actualizarRecordatorio(Dm.recId, {estado:"Cancelado", motivoCancelacion:motivo});
+      cerrarModal(); break;
+    }
+
+    /* ── Reagendar ──────────────────────────────────────────────────── */
+    case "rg-opcion": capturarModal(); UI.modalDatos.motivo = arg; render(); break;
+    case "rg-confirmar": {
+      capturarModal();
+      var Dr = UI.modalDatos;
+      var cr = buscarCita(Dr.citaId);
+      var mr = Dr.motivo === "Otro" ? String(Dr.otro||"").trim() : Dr.motivo;
+      if(!mr){ UI.modalError = "Seleccione el motivo del reagendamiento."; render(); break; }
+      reagendarCita(Dr.citaId, {fecha:Dr.fecha || cr.fecha, hora:Dr.hora || cr.hora,
+        profesionalId:Dr.profesionalId || cr.profesionalId}, mr);
+      cerrarModal(); break;
+    }
+
+    /* ── Recordatorios ──────────────────────────────────────────────── */
+    case "rec-completar": actualizarRecordatorio(arg, {estado:"Completado"}); render(); break;
+    case "rf-guardar": {
+      capturarModal();
+      var Df = UI.modalDatos;
+      if(!String(Df.motivo||"").trim()){ UI.modalError = "Describa el motivo del recordatorio."; render(); break; }
+      crearRecordatorio({tipo:Df.tipo,
+        categoria: Df.responsableId === "PRO-03" ? "Tarea para recepción" : "Alerta para audióloga",
+        pacienteId:Df.pacienteId, motivo:Df.motivo.trim(), fecha:Df.fecha,
+        responsableId:Df.responsableId, prioridad:Df.prioridad, canal:"Llamada"});
+      cerrarModal(); break;
+    }
+    case "er-guardar": {
+      capturarModal();
+      var De = UI.modalDatos;
+      actualizarRecordatorio(De.recId, {motivo:De.motivo, fecha:De.fecha, prioridad:De.prioridad});
+      cerrarModal(); break;
+    }
+    case "pp-guardar": {
+      capturarModal();
+      var Dpp = UI.modalDatos;
+      actualizarRecordatorio(Dpp.recId, {fecha:Dpp.fecha, nota:"Pospuesto para "+fechaCorta(Dpp.fecha)+"."});
+      cerrarModal(); break;
+    }
+    case "rs-guardar": {
+      capturarModal();
+      actualizarRecordatorio(UI.modalDatos.recId, {responsableId:UI.modalDatos.responsableId});
+      cerrarModal(); break;
+    }
+
+    /* ── Documento ──────────────────────────────────────────────────── */
+    case "doc-archivo":
+      capturarModal();
+      UI.modalDatos.archivo = UI.modalDatos.archivo ? "" : "documento-demo-"+(Date.now()%1000)+".pdf";
+      render(); break;
+    case "dc-guardar": {
+      capturarModal();
+      var Dd = UI.modalDatos;
+      if(!String(Dd.titulo||"").trim()){ UI.modalError = "El título del documento es obligatorio."; render(); break; }
+      agregarDocumento({pacienteId:Dd.pacienteId, tipo:Dd.tipo,
+        titulo:Dd.titulo.trim()+" (documento ficticio)", fechaDocumento:Dd.fechaDoc || HOY});
+      cerrarModal(); break;
+    }
+
+    /* ── Editar paciente ────────────────────────────────────────────── */
+    case "ep-guardar": {
+      capturarModal();
+      var Dx = UI.modalDatos;
+      var pz = buscarPaciente(Dx.pacienteId);
+      if(pz){ pz.telefono = Dx.telefono; pz.ciudad = Dx.ciudad || undefined; pz.notas = Dx.notas || undefined; }
+      cerrarModal(); break;
+    }
+
+    /* ── Registro de atención ───────────────────────────────────────── */
+    case "at-adjunto":
+      capturarPantalla();
+      UI.modalDatos.adjunto = UI.modalDatos.adjunto ? "" : "audiometria-demo-"+(Date.now()%1000)+".pdf";
+      render(); break;
+    case "at-sinseg":
+      capturarPantalla();
+      UI.modalDatos.sinSeguimiento = !UI.modalDatos.sinSeguimiento;
+      render(); break;
+    case "at-guardar": {
+      capturarPantalla();
+      var Da = UI.modalDatos;
+      if(!String(Da.observacion||"").trim()){
+        UI.modalError = "La observación es obligatoria (es el único campo imprescindible)."; render(); break;
+      }
+      if(!Da.sinSeguimiento && !String(Da.proximaAccion||"").trim()){
+        UI.modalError = 'Defina la próxima acción o marque "No requiere seguimiento". Es el punto donde se previene el abandono.';
+        render(); break;
+      }
+      var idPac = UI.pacienteId;
+      registrarAtencion({pacienteId:idPac, citaId: arg || undefined, tipo:Da.tipo,
+        observacion:Da.observacion.trim(), indicacion:String(Da.indicacion||"").trim(),
+        proximaAccion: Da.sinSeguimiento ? "" : Da.proximaAccion.trim(),
+        fechaSeguimiento: Da.sinSeguimiento ? undefined : Da.fechaSeguimiento,
+        responsableId:Da.responsableId, documentoAdjunto:Da.adjunto || undefined});
+      UI.modalDatos = {}; UI.modalError = "";
+      irA("ficha", {pacienteId:idPac});
+      break;
+    }
+  }
+});
+
+/* ── Selects y casillas ─────────────────────────────────────────────────── */
+document.addEventListener("change", function(ev){
+  var nodo = ev.target.closest ? ev.target.closest("[data-act]") : null;
+  if(!nodo) return;
+  var act = nodo.getAttribute("data-act");
+  UI.scrollY = window.scrollY;
+  switch(act){
+    case "ag-suc":      UI.agenda.suc = nodo.value; render(); break;
+    case "ag-prof":     UI.agenda.prof = nodo.value; render(); break;
+    case "pac-suc":     UI.pacientes.suc = nodo.value; render(); break;
+    case "pac-prof":    UI.pacientes.prof = nodo.value; render(); break;
+    case "pac-alertas": UI.pacientes.soloAlertas = nodo.checked; render(); break;
+  }
+});
+
+/* ── Escritura en tiempo real ───────────────────────────────────────────── */
+document.addEventListener("input", function(ev){
+  var t = ev.target;
+  if(!t || !t.id) {
+    /* Aviso de duplicados: se actualiza solo esa zona, sin redibujar el modal */
+    if(t && t.classList && t.classList.contains("dup-watch")) actualizarZonaDuplicados();
+    return;
+  }
+  if(t.id === "busq-pac"){
+    UI.pacientes.q = t.value;
+    UI.scrollY = window.scrollY;
+    render();
+    return;
+  }
+  if(t.id === "cf-busq"){
+    UI.modalDatos.busqueda = t.value;
+    UI.scrollY = window.scrollY;
+    render();
+    return;
+  }
+  if(t.classList && t.classList.contains("dup-watch")) actualizarZonaDuplicados();
+});
+
+function actualizarZonaDuplicados(){
+  if(UI.modal !== "paciente") return;
+  capturarModal();
+  var zona = document.getElementById("zona-dup");
+  if(zona) zona.innerHTML = htmlDuplicados();
+}
+
+/* ── Buscador de la cabecera (Enter) ────────────────────────────────────── */
+document.addEventListener("keydown", function(ev){
+  if(ev.target && ev.target.id === "busq-cab" && ev.key === "Enter"){
+    ev.preventDefault();
+    UI.busquedaCabecera = ev.target.value;
+    UI.pacientes.q = ev.target.value;
+    irA("pacientes", {mantenerBusqueda:true});
+    return;
+  }
+  if(ev.key === "Escape"){
+    if(UI.modal){ capturarModal(); cerrarModal(); }
+    else if(UI.agenda.citaAbierta){ UI.agenda.citaAbierta = null; render(); }
+  }
+});
+
+/* =========================================================================
+   15. ARRANQUE
+   ========================================================================= */
+render();
+
+</script>
+</body>
+</html>

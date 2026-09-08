@@ -1,0 +1,105 @@
+===========================================================
+   COMO ABRIR EL PROTOTIPO DE PROAUDIO
+===========================================================
+
+   Hay DOS versiones del mismo prototipo. Son equivalentes:
+   las mismas pantallas, los mismos datos, los mismos flujos.
+
+
+-----------------------------------------------------------
+   OPCION 1 (RECOMENDADA PARA LA REUNION)
+-----------------------------------------------------------
+
+   Haga doble clic en el archivo:
+
+         PROTOTIPO PROAUDIO.html
+
+   Se abre directamente en el navegador. Eso es todo.
+
+   No necesita instalar nada, no aparece ninguna ventana
+   negra y no hace falta conexion a internet.
+
+   Como es un archivo unico, puede enviarlo por correo o
+   por WhatsApp, o llevarlo en un pendrive y abrirlo en
+   cualquier computadora, tablet o telefono.
+
+   Para cerrarlo: cierre la pestana del navegador.
+
+
+-----------------------------------------------------------
+   OPCION 2 (VERSION DE TRABAJO)
+-----------------------------------------------------------
+
+   Haga doble clic en el archivo:
+
+         ABRIR PROTOTIPO.bat
+
+   Se abrira una ventana negra con letras. Es normal.
+   NO la cierre: es el motor del prototipo.
+
+   A los 15 segundos aproximadamente, el prototipo se
+   abrira solo en su navegador.
+
+   Si no se abre solo, escriba esta direccion en el
+   navegador (Chrome, Edge o el que use):
+
+         http://localhost:3000
+
+   Para cerrarlo: cierre la ventana negra.
+
+   Esta version solo funciona en esta computadora, pero es
+   la mas comoda para ir haciendo cambios despues de la
+   reunion. Uselá si va a iterar el diseno.
+
+
+SI ALGO SE VE RARO O SE TRABA
+-----------------------------
+
+   Presione la tecla F5 para recargar la pagina.
+   Todo vuelve a su estado inicial.
+
+   No hay forma de estropear el prototipo. Nada se guarda.
+   Pruebe con confianza.
+
+
+LA PRIMERA VEZ QUE WINDOWS SE QUEJE
+-----------------------------------
+
+   Si Windows muestra un aviso de seguridad al abrir el
+   archivo .bat, elija "Mas informacion" y luego
+   "Ejecutar de todas formas".
+
+   Si aparece un aviso del Firewall de Windows pidiendo
+   permiso para Node.js, puede pulsar "Cancelar".
+   El prototipo funciona igual: no necesita internet.
+
+
+MUY IMPORTANTE
+--------------
+
+   NO escriba datos reales de ningun paciente.
+   Ni nombres, ni telefonos, ni cedulas, ni datos de salud.
+
+   Todavia no existe una politica de proteccion de datos
+   definida para el proyecto. Hasta que Proaudio la defina,
+   ningun dato real debe entrar aqui.
+
+   Si necesita inventar datos durante la reunion, use
+   formatos evidentemente falsos como los que ya trae el
+   prototipo:
+
+      Telefonos:   099-000-0001
+      Documentos:  DOC-FICT-001
+      Series:      SERIE-DEMO-001
+      Correos:     algo@prototipo.invalid
+
+
+QUE PROBAR EN LA REUNION
+------------------------
+
+   El archivo README.md tiene tres recorridos completos.
+   La guia de la reunion esta en:
+
+      docs\GUIA-REUNION-PROTOTIPO.md
+
+===========================================================
