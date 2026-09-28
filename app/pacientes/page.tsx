@@ -91,7 +91,7 @@ function PacientesContenido() {
             Solo con alertas
           </label>
           <span className="ml-auto text-xs text-slate-400">
-            {resultados.length} paciente{resultados.length !== 1 ? "s" : ""} (datos ficticios)
+            {resultados.length} paciente{resultados.length !== 1 ? "s" : ""}
           </span>
         </div>
       </div>

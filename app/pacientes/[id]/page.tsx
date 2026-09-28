@@ -17,7 +17,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
-import { fechaCorta, horaFin } from "@/lib/format";
+import { edadEnAnios, fechaCorta, horaFin } from "@/lib/format";
 import { diasParaVencer, estadoGarantia } from "@/lib/garantia";
 import type { Audifono, EventoTimeline } from "@/lib/types";
 import {
@@ -287,6 +287,28 @@ export default function FichaPaciente() {
             >
               Ver línea de tiempo →
             </button>
+          </section>
+
+          <section className="tarjeta">
+            <h2 className="mb-2 font-bold text-slate-700">Datos del paciente</h2>
+            <dl className="space-y-2.5 text-sm">
+              <div>
+                <dt className="text-xs font-semibold uppercase text-slate-400">Cédula / documento</dt>
+                <dd className="text-slate-700">{paciente.documento ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase text-slate-400">Fecha de nacimiento</dt>
+                <dd className="text-slate-700">
+                  {paciente.fechaNacimiento
+                    ? `${fechaCorta(paciente.fechaNacimiento)} (${edadEnAnios(paciente.fechaNacimiento, hoy)} años)`
+                    : "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase text-slate-400">Notas administrativas</dt>
+                <dd className="whitespace-pre-line text-slate-700">{paciente.notas ?? "—"}</dd>
+              </div>
+            </dl>
           </section>
 
           <section className="tarjeta">

@@ -152,6 +152,15 @@ export function mesYAnio(iso: string): string {
   return `${MESES[m - 1]} ${y}`;
 }
 
+/** Edad en años cumplidos, a partir de la fecha de nacimiento (YYYY-MM-DD). */
+export function edadEnAnios(fechaNacimiento: string, hoy: string): number {
+  const n = partesFecha(fechaNacimiento);
+  const h = partesFecha(hoy);
+  let edad = h.y - n.y;
+  if (h.m < n.m || (h.m === n.m && h.d < n.d)) edad -= 1; // el cumpleaños de este año aún no llega
+  return Math.max(0, edad);
+}
+
 export function diasEntre(desde: string, hasta: string): number {
   const a = partesFecha(desde);
   const b = partesFecha(hasta);

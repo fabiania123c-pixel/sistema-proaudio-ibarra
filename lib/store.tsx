@@ -38,6 +38,35 @@ export const USUARIA_ACTUAL_ID = "PRO-03";
 /** Nombre del bucket de Supabase Storage donde viven los documentos reales. */
 const BUCKET_DOCUMENTOS = "documentos";
 
+/**
+ * Trae TODAS las filas de una tabla, sin importar cuántas sean.
+ *
+ * Supabase (PostgREST) limita cada consulta a un máximo de filas por defecto
+ * (normalmente 1000), así que un simple `.select("*")` se queda corto apenas
+ * una tabla crece más de eso — como pasó con "pacientes" (más de 6000
+ * registros reales, de los cuales solo se veían los primeros 1000). Esta
+ * función pagina automáticamente con `.range()` hasta traer todo.
+ */
+async function traerTodasLasFilas<T>(
+  tabla: string
+): Promise<{ data: T[] | null; error: { message: string } | null }> {
+  const TAMANO_PAGINA = 1000;
+  let desde = 0;
+  const filas: T[] = [];
+  while (true) {
+    const { data, error } = await supabase
+      .from(tabla)
+      .select("*")
+      .range(desde, desde + TAMANO_PAGINA - 1);
+    if (error) return { data: null, error };
+    if (!data || data.length === 0) break;
+    filas.push(...(data as T[]));
+    if (data.length < TAMANO_PAGINA) break; // última página
+    desde += TAMANO_PAGINA;
+  }
+  return { data: filas, error: null };
+}
+
 interface Store {
   hoy: string;
   cargando: boolean;
@@ -237,14 +266,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       const [pac, cit, ate, rec, doc, aud, com, evt] = await Promise.all([
-        supabase.from("pacientes").select("*"),
-        supabase.from("citas").select("*"),
-        supabase.from("atenciones").select("*"),
-        supabase.from("recordatorios").select("*"),
-        supabase.from("documentos").select("*"),
-        supabase.from("audifonos").select("*"),
-        supabase.from("comunicaciones").select("*"),
-        supabase.from("eventos_timeline").select("*"),
+        traerTodasLasFilas<Paciente>("pacientes"),
+        traerTodasLasFilas<Cita>("citas"),
+        traerTodasLasFilas<Atencion>("atenciones"),
+        traerTodasLasFilas<Recordatorio>("recordatorios"),
+        traerTodasLasFilas<Documento>("documentos"),
+        traerTodasLasFilas<Record<string, unknown>>("audifonos"),
+        traerTodasLasFilas<Comunicacion>("comunicaciones"),
+        traerTodasLasFilas<EventoTimeline>("eventos_timeline"),
       ]);
       if (cancelado) return;
 
