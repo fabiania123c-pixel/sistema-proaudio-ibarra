@@ -14,7 +14,8 @@ function RegistroAtencion() {
   const params = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { hoy, pacientes, citas, audifonos, profesionales, registrarAtencion } = useStore();
+  const { hoy, pacientes, citas, audifonos, profesionales, registrarAtencion, agregarDocumento } =
+    useStore();
 
   const paciente = pacientes.find((p) => p.id === params.id);
   const citaParam = searchParams.get("cita");
@@ -39,7 +40,8 @@ function RegistroAtencion() {
   const [fechaSeguimiento, setFechaSeguimiento] = useState(sumarDias(hoy, 90));
   const [responsableId, setResponsableId] = useState("PRO-03");
   const [sinSeguimiento, setSinSeguimiento] = useState(false);
-  const [adjunto, setAdjunto] = useState("");
+  const [archivoAdjunto, setArchivoAdjunto] = useState<File | null>(null);
+  const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
 
   if (!paciente) {
@@ -51,7 +53,7 @@ function RegistroAtencion() {
     );
   }
 
-  function guardar() {
+  async function guardar() {
     if (!observacion.trim()) {
       setError("La observación es obligatoria (es el único campo imprescindible).");
       return;
@@ -62,6 +64,29 @@ function RegistroAtencion() {
       );
       return;
     }
+
+    setError("");
+    setGuardando(true);
+
+    // Si se adjuntó un archivo real, se sube primero como documento del paciente
+    // (queda también visible en la pestaña Documentos de su ficha).
+    let documentoAdjunto: string | undefined;
+    if (archivoAdjunto) {
+      const resultado = await agregarDocumento({
+        pacienteId: paciente!.id,
+        tipo: tipo === "Audiometría" ? "Resultado de audiometría" : "Otro",
+        titulo: `${tipo} · atención del ${fechaCorta(hoy)}`,
+        fechaDocumento: hoy,
+        archivo: archivoAdjunto,
+      });
+      if (!resultado.ok) {
+        setGuardando(false);
+        setError(resultado.error ?? "No se pudo subir el archivo adjunto. Intente nuevamente.");
+        return;
+      }
+      documentoAdjunto = archivoAdjunto.name;
+    }
+
     registrarAtencion({
       pacienteId: paciente!.id,
       citaId: cita?.id,
@@ -71,8 +96,9 @@ function RegistroAtencion() {
       proximaAccion: sinSeguimiento ? "" : proximaAccion.trim(),
       fechaSeguimiento: sinSeguimiento ? undefined : fechaSeguimiento,
       responsableId,
-      documentoAdjunto: adjunto || undefined,
+      documentoAdjunto,
     });
+    setGuardando(false);
     router.push(`/pacientes/${paciente!.id}`);
   }
 
@@ -142,11 +168,7 @@ function RegistroAtencion() {
             <label className="etiqueta">Profesional que atiende</label>
             <input
               className="campo"
-              value={
-                profesionalQueAtiende
-                  ? `${profesionalQueAtiende.nombre} (simulado)`
-                  : "Sin asignar (simulado)"
-              }
+              value={profesionalQueAtiende ? profesionalQueAtiende.nombre : "Sin asignar"}
               readOnly
             />
           </div>
@@ -185,17 +207,29 @@ function RegistroAtencion() {
         </div>
 
         <div>
-          <button
-            className={`flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed px-3 py-3 text-sm ${
-              adjunto ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-slate-300 text-slate-500 hover:border-marca-600"
+          <label className="etiqueta">Adjuntar documento (opcional)</label>
+          <label
+            className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed px-3 py-3 text-sm ${
+              archivoAdjunto
+                ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                : "border-slate-300 text-slate-500 hover:border-marca-600"
             }`}
-            onClick={() => setAdjunto(adjunto ? "" : `audiometria-demo-${Date.now() % 1000}.pdf`)}
           >
-            {adjunto ? <Paperclip size={16} /> : <FileUp size={16} />}
-            {adjunto
-              ? `Documento simulado adjuntado: ${adjunto} (clic para quitar)`
-              : "Adjuntar documento simulado (ej.: resultado de audiometría — nada se guarda realmente)"}
-          </button>
+            {archivoAdjunto ? <Paperclip size={16} /> : <FileUp size={16} />}
+            {archivoAdjunto
+              ? `Archivo seleccionado: ${archivoAdjunto.name} (clic para cambiar)`
+              : "Adjuntar documento (ej.: resultado de audiometría)"}
+            <input
+              type="file"
+              className="hidden"
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              onChange={(e) => setArchivoAdjunto(e.target.files?.[0] ?? null)}
+            />
+          </label>
+          <p className="mt-1 text-[11px] text-slate-500">
+            Se sube al bucket de Supabase Storage y queda visible en la pestaña Documentos de la
+            ficha del paciente.
+          </p>
         </div>
 
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
@@ -249,9 +283,11 @@ function RegistroAtencion() {
         {error && <p className="text-sm font-semibold text-rose-700">{error}</p>}
 
         <div className="flex justify-end gap-2 border-t border-slate-200 pt-3">
-          <button className="btn-secundario" onClick={() => router.back()}>Cancelar</button>
-          <button className="btn-primario" onClick={guardar}>
-            Guardar {cita ? "y marcar cita como atendida" : "atención"}
+          <button className="btn-secundario" onClick={() => router.back()} disabled={guardando}>
+            Cancelar
+          </button>
+          <button className="btn-primario" onClick={guardar} disabled={guardando}>
+            {guardando ? "Guardando…" : `Guardar ${cita ? "y marcar cita como atendida" : "atención"}`}
           </button>
         </div>
       </section>
