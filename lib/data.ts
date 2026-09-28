@@ -111,8 +111,8 @@ export const AGENCIAS = ["Ibarra", "Quito", "Otra agencia Proaudio"]; // ⚠ Lis
 export const profesionales: Profesional[] = [
   {
     id: "PRO-01",
-    nombre: "María Fernanda Torres",
-    nombreCorto: "M. F. Torres",
+    nombre: "María Fernanda Terán",
+    nombreCorto: "M. F. Terán",
     iniciales: "MT",
     rol: "Audiología",
     sucursalId: SUCURSAL_ID,
@@ -141,9 +141,9 @@ export const profesionales: Profesional[] = [
   },
   {
     id: "PRO-03",
-    nombre: "Amanda",
-    nombreCorto: "Amanda",
-    iniciales: "A",
+    nombre: "Mayra Lechón",
+    nombreCorto: "M. Lechón",
+    iniciales: "ML",
     rol: "Recepción",
     sucursalId: SUCURSAL_ID,
     color: "border-slate-300 bg-slate-50",
@@ -827,9 +827,9 @@ export const eventosSeed: EventoTimeline[] = [
     pacienteId: "PAC-00412",
     fecha: HOY,
     tipo: "Cita",
-    titulo: "Cita agendada · Control periódico · 09:00 · M. F. Torres",
+    titulo: "Cita agendada · Control periódico · 09:00 · M. F. Terán",
     detalle: "Estado: Confirmada",
-    autor: "Amanda",
+    autor: "Mayra Lechón",
     refId: "CIT-101",
   },
   {
@@ -839,15 +839,15 @@ export const eventosSeed: EventoTimeline[] = [
     tipo: "Contacto",
     titulo: "Contacto · Llamada",
     detalle: `Resultado: Contactada. Confirmó su cita del ${fechaCorta(HOY)}.`,
-    autor: "Amanda",
+    autor: "Mayra Lechón",
   },
   {
     id: "EVT-03",
     pacienteId: "PAC-00412",
     fecha: F_ULT_ROSA,
     tipo: "Atención",
-    titulo: "Atención · Control periódico · María Fernanda Torres",
-    autor: "M. F. Torres",
+    titulo: "Atención · Control periódico · María Fernanda Terán",
+    autor: "M. F. Terán",
     refId: "ATN-01",
   },
   {
@@ -855,8 +855,8 @@ export const eventosSeed: EventoTimeline[] = [
     pacienteId: "PAC-00412",
     fecha: rel("2025-12-12"),
     tipo: "Atención",
-    titulo: "Atención · Control periódico · María Fernanda Torres",
-    autor: "M. F. Torres",
+    titulo: "Atención · Control periódico · María Fernanda Terán",
+    autor: "M. F. Terán",
     refId: "ATN-02",
   },
   {
@@ -875,7 +875,7 @@ export const eventosSeed: EventoTimeline[] = [
     tipo: "Cita",
     titulo: "Cita no atendida · Control periódico",
     detalle: "No asistió. Sin aviso previo.",
-    autor: "Amanda",
+    autor: "Mayra Lechón",
     refId: "CIT-060",
   },
   {
@@ -885,7 +885,7 @@ export const eventosSeed: EventoTimeline[] = [
     tipo: "Equipo",
     titulo: "Entrega de equipo · Marca Demo Uno Modelo Z-1 · Oído derecho · SERIE-DEMO-001",
     detalle: `Garantía hasta ${fechaCorta(F_VENC_GARANTIA_ROSA)} · Factura FACT-DEMO-001 (fechas y reglas ficticias para validación visual)`,
-    autor: "M. F. Torres",
+    autor: "M. F. Terán",
     refId: "AUD-01",
   },
   {
@@ -894,7 +894,7 @@ export const eventosSeed: EventoTimeline[] = [
     fecha: rel("2024-08-02"),
     tipo: "Ficha",
     titulo: "Ficha creada",
-    autor: "Amanda",
+    autor: "Mayra Lechón",
   },
   // Segundo Chalá
   {
@@ -931,7 +931,7 @@ export const eventosSeed: EventoTimeline[] = [
     fecha: rel("2026-07-30"),
     tipo: "Contacto",
     titulo: `Contacto · Llamada — confirmó cita del ${fechaCorta(HOY)}`,
-    autor: "Amanda",
+    autor: "Mayra Lechón",
   },
   {
     id: "EVT-21",
@@ -950,7 +950,7 @@ export const eventosSeed: EventoTimeline[] = [
     tipo: "Ficha",
     titulo: "Ficha creada · paciente nuevo",
     detalle: "Referido por Rosa Cabascango (PAC-00412)",
-    autor: "Amanda",
+    autor: "Mayra Lechón",
   },
   {
     id: "EVT-31",
@@ -958,7 +958,7 @@ export const eventosSeed: EventoTimeline[] = [
     fecha: HOY,
     tipo: "Cita",
     titulo: "Cita agendada · Primera consulta · 10:30 · G. Realpe",
-    autor: "Amanda",
+    autor: "Mayra Lechón",
     refId: "CIT-103",
   },
   // Blanca Yépez
@@ -969,7 +969,7 @@ export const eventosSeed: EventoTimeline[] = [
     tipo: "Cita",
     titulo: "Cita agendada · Audiometría · 11:15 · K. Chamba",
     detalle: "Pendiente de confirmar",
-    autor: "Amanda",
+    autor: "Mayra Lechón",
     refId: "CIT-105",
   },
   {

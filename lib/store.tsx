@@ -32,7 +32,7 @@ import type {
   Sucursal,
 } from "./types";
 
-export const USUARIA_ACTUAL = "Amanda";
+export const USUARIA_ACTUAL = "Mayra Lechón";
 export const USUARIA_ACTUAL_ID = "PRO-03";
 
 /** Nombre del bucket de Supabase Storage donde viven los documentos reales. */
