@@ -147,7 +147,7 @@ export const profesionales: Profesional[] = [
     rol: "Recepción",
     sucursalId: SUCURSAL_ID,
     color: "border-slate-300 bg-slate-50",
-    atiende: false,
+    atiende: true,
   },
   {
     id: "PRO-04",
