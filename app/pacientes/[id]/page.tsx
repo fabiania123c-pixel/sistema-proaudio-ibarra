@@ -14,6 +14,7 @@ import {
   FileText,
   Plus,
   ChevronRight,
+  ExternalLink,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { fechaCorta, horaFin } from "@/lib/format";
@@ -73,6 +74,7 @@ export default function FichaPaciente() {
     comunicaciones,
     eventos,
     profesionales,
+    obtenerUrlDocumento,
   } = useStore();
   const [pestania, setPestania] = useState<Pestania>("Resumen");
   const [filtroTimeline, setFiltroTimeline] = useState("Todo");
@@ -85,6 +87,7 @@ export default function FichaPaciente() {
     abierto: false,
   });
   const [eventoAbierto, setEventoAbierto] = useState<EventoTimeline | null>(null);
+  const [abriendoDocId, setAbriendoDocId] = useState<string | null>(null);
 
   const paciente = pacientes.find((p) => p.id === params.id);
 
@@ -123,6 +126,19 @@ export default function FichaPaciente() {
 
   function esConsultable(e: EventoTimeline) {
     return TIPOS_CONSULTABLES.includes(e.tipo) && !!e.refId;
+  }
+
+  /** Abre en una pestaña nueva el archivo real de un documento (URL firmada, válida 10 min). */
+  async function abrirDocumento(docId: string, rutaArchivo?: string) {
+    if (!rutaArchivo) return;
+    setAbriendoDocId(docId);
+    const url = await obtenerUrlDocumento(rutaArchivo);
+    setAbriendoDocId(null);
+    if (url) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    } else {
+      alert("No se pudo abrir el archivo. Verifique la conexión con Supabase Storage e intente de nuevo.");
+    }
   }
 
   return (
@@ -529,14 +545,23 @@ export default function FichaPaciente() {
                   </div>
                 </div>
               </div>
-              <span className="text-xs italic text-slate-400">
-                Visor no disponible en el prototipo
-              </span>
+              {d.archivo_url ? (
+                <button
+                  className="btn-suave"
+                  onClick={() => abrirDocumento(d.id, d.archivo_url)}
+                  disabled={abriendoDocId === d.id}
+                >
+                  <ExternalLink size={13} />
+                  {abriendoDocId === d.id ? "Abriendo…" : "Abrir archivo"}
+                </button>
+              ) : (
+                <span className="text-xs italic text-slate-400">Sin archivo adjunto (solo metadatos)</span>
+              )}
             </div>
           ))}
           {docs.length === 0 && <Vacio>Sin documentos adjuntos.</Vacio>}
           <button className="btn-secundario" onClick={() => setModalDocumento(true)}>
-            <FileUp size={16} /> Adjuntar documento simulado
+            <FileUp size={16} /> Adjuntar documento
           </button>
         </div>
       )}
@@ -639,13 +664,22 @@ function DetalleEventoModal({
   evento: EventoTimeline;
   onCerrar: () => void;
 }) {
-  const { citas, atenciones, documentos, audifonos, profesionales, hoy } = useStore();
+  const { citas, atenciones, documentos, audifonos, profesionales, hoy, obtenerUrlDocumento } = useStore();
   const nombreProf = (id: string) => profesionales.find((p) => p.id === id)?.nombre ?? id;
+  const [abriendo, setAbriendo] = useState(false);
 
   const cita = citas.find((c) => c.id === evento.refId);
   const atencion = atenciones.find((a) => a.id === evento.refId);
   const documento = documentos.find((d) => d.id === evento.refId);
   const equipo = audifonos.find((a) => a.id === evento.refId);
+
+  async function abrirDocumento() {
+    if (!documento?.archivo_url) return;
+    setAbriendo(true);
+    const url = await obtenerUrlDocumento(documento.archivo_url);
+    setAbriendo(false);
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  }
 
   return (
     <Modal titulo={`${evento.tipo} · ${fechaCorta(evento.fecha)}`} abierto onCerrar={onCerrar} ancho="max-w-lg">
@@ -691,7 +725,13 @@ function DetalleEventoModal({
             <Dato etiqueta="Cargado">
               {fechaCorta(documento.fechaCarga)} por {nombreProf(documento.cargadoPorId)}
             </Dato>
-            <p className="italic text-slate-400">Visor no disponible en el prototipo.</p>
+            {documento.archivo_url ? (
+              <button className="btn-suave" onClick={abrirDocumento} disabled={abriendo}>
+                {abriendo ? "Abriendo…" : "Abrir archivo"}
+              </button>
+            ) : (
+              <p className="italic text-slate-400">Este documento no tiene archivo real adjunto.</p>
+            )}
           </dl>
         )}
 

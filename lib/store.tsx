@@ -35,6 +35,9 @@ import type {
 export const USUARIA_ACTUAL = "Amanda";
 export const USUARIA_ACTUAL_ID = "PRO-03";
 
+/** Nombre del bucket de Supabase Storage donde viven los documentos reales. */
+const BUCKET_DOCUMENTOS = "documentos";
+
 interface Store {
   hoy: string;
   cargando: boolean;
@@ -83,13 +86,25 @@ interface Store {
     datos: Omit<Recordatorio, "id" | "estado"> & { estado?: EstadoRecordatorio }
   ) => void;
   actualizarRecordatorio: (id: string, patch: Partial<Recordatorio>) => void;
+  /**
+   * Crea el registro de un documento y, si se adjunta un archivo real, lo sube
+   * al bucket de Supabase Storage "documentos" antes de guardar la fila. Es
+   * asíncrona porque la subida del archivo tarda; el llamador debe esperarla
+   * (await) para saber cuándo terminó y poder cerrar el modal.
+   */
   agregarDocumento: (datos: {
     pacienteId: string;
     tipo: string;
     titulo: string;
     fechaDocumento?: string;
     observaciones?: string;
-  }) => void;
+    archivo?: File;
+  }) => Promise<{ ok: boolean; error?: string }>;
+  /**
+   * Genera una URL temporal (10 minutos) para abrir o descargar un documento
+   * real guardado en Storage. Recibe la ruta guardada en `archivo_url`.
+   */
+  obtenerUrlDocumento: (rutaArchivo: string) => Promise<string | null>;
   guardarAudifono: (datos: Omit<Audifono, "id"> & { id?: string }) => void;
 }
 
@@ -112,6 +127,14 @@ function diaAntes(fechaISO: string): string {
   const d = new Date(fechaISO + "T00:00:00");
   d.setDate(d.getDate() - 1);
   return d.toISOString().slice(0, 10);
+}
+
+/** Quita acentos, espacios y símbolos que Supabase Storage no acepta bien en rutas. */
+function limpiarNombreArchivo(nombre: string): string {
+  return nombre
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-zA-Z0-9.\-_]/g, "_");
 }
 
 const TABLA: Record<string, string> = {
@@ -621,18 +644,44 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   );
 
   const agregarDocumento = useCallback(
-    (datos: {
+    async (datos: {
       pacienteId: string;
       tipo: string;
       titulo: string;
       fechaDocumento?: string;
       observaciones?: string;
-    }) => {
+      archivo?: File;
+    }): Promise<{ ok: boolean; error?: string }> => {
+      const id = nuevoId("DOC");
+      let archivo_url: string | undefined;
+
+      // Si hay un archivo real, se sube primero al bucket de Supabase Storage.
+      // La ruta incluye el id del paciente (para organizar por carpeta) y el id
+      // del documento (para que nunca choque con otro archivo del mismo nombre).
+      if (datos.archivo) {
+        const nombreLimpio = limpiarNombreArchivo(datos.archivo.name);
+        const ruta = `${datos.pacienteId}/${id}-${nombreLimpio}`;
+        const { error: errorSubida } = await supabase.storage
+          .from(BUCKET_DOCUMENTOS)
+          .upload(ruta, datos.archivo, { upsert: false });
+        if (errorSubida) {
+          console.error("[Supabase Storage] Error al subir archivo:", errorSubida.message);
+          return {
+            ok: false,
+            error:
+              "No se pudo subir el archivo. Verifique que el bucket \"documentos\" exista en Supabase Storage y vuelva a intentar.",
+          };
+        }
+        archivo_url = ruta;
+      }
+
+      const { archivo: _archivo, ...resto } = datos;
       const doc: Documento = {
-        id: nuevoId("DOC"),
+        id,
         fechaCarga: HOY,
         cargadoPorId: USUARIA_ACTUAL_ID,
-        ...datos,
+        ...resto,
+        archivo_url,
       };
       setDocumentos((prev) => [doc, ...prev]);
       persistir("documentos", "insert", doc);
@@ -640,13 +689,25 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         pacienteId: datos.pacienteId,
         fecha: HOY,
         tipo: "Documento",
-        titulo: `Documento cargado (simulado): ${datos.titulo}`,
+        titulo: `Documento cargado: ${datos.titulo}`,
         autor: USUARIA_ACTUAL,
         refId: doc.id,
       });
+      return { ok: true };
     },
     [pushEvento]
   );
+
+  const obtenerUrlDocumento = useCallback(async (ruta: string): Promise<string | null> => {
+    const { data, error } = await supabase.storage
+      .from(BUCKET_DOCUMENTOS)
+      .createSignedUrl(ruta, 60 * 10); // válida 10 minutos
+    if (error) {
+      console.error("[Supabase Storage] Error generando URL del documento:", error.message);
+      return null;
+    }
+    return data?.signedUrl ?? null;
+  }, []);
 
   const guardarAudifono = useCallback(
     (datos: Omit<Audifono, "id"> & { id?: string }) => {
@@ -708,6 +769,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       crearRecordatorio,
       actualizarRecordatorio,
       agregarDocumento,
+      obtenerUrlDocumento,
       guardarAudifono,
     }),
     [
@@ -732,6 +794,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       crearRecordatorio,
       actualizarRecordatorio,
       agregarDocumento,
+      obtenerUrlDocumento,
       guardarAudifono,
     ]
   );

@@ -259,48 +259,70 @@ export function DocumentoModal({
 }) {
   const { hoy, pacientes, agregarDocumento } = useStore();
   const paciente = pacientes.find((p) => p.id === pacienteId);
-  const [archivoSimulado, setArchivoSimulado] = useState("");
+  const [archivo, setArchivo] = useState<File | null>(null);
   const [tipo, setTipo] = useState(TIPOS_DOCUMENTO[0]);
   const [titulo, setTitulo] = useState("");
   const [fechaDoc, setFechaDoc] = useState("");
   const [error, setError] = useState("");
+  const [subiendo, setSubiendo] = useState(false);
 
-  function guardar() {
+  function cerrarYLimpiar() {
+    setArchivo(null); setTitulo(""); setFechaDoc(""); setError(""); setSubiendo(false);
+    onCerrar();
+  }
+
+  async function guardar() {
     if (!titulo.trim()) {
       setError("El título del documento es obligatorio.");
       return;
     }
-    agregarDocumento({
+    if (!archivo) {
+      setError("Seleccione el archivo que desea adjuntar.");
+      return;
+    }
+    setError("");
+    setSubiendo(true);
+    const resultado = await agregarDocumento({
       pacienteId,
       tipo,
-      titulo: `${titulo.trim()} (documento ficticio)`,
+      titulo: titulo.trim(),
       fechaDocumento: fechaDoc || hoy,
+      archivo,
     });
-    setArchivoSimulado(""); setTitulo(""); setFechaDoc(""); setError("");
-    onCerrar();
+    setSubiendo(false);
+    if (!resultado.ok) {
+      setError(resultado.error ?? "No se pudo guardar el documento. Intente nuevamente.");
+      return;
+    }
+    cerrarYLimpiar();
   }
 
   return (
     <Modal
-      titulo={`Cargar documento (simulado) — ${paciente ? `${paciente.nombres} ${paciente.apellidos}` : ""}`}
+      titulo={`Adjuntar documento — ${paciente ? `${paciente.nombres} ${paciente.apellidos}` : ""}`}
       abierto={abierto}
-      onCerrar={onCerrar}
+      onCerrar={cerrarYLimpiar}
       ancho="max-w-md"
     >
       <div className="space-y-3">
-        <button
-          className={`flex w-full flex-col items-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 text-sm ${
-            archivoSimulado
+        <label
+          className={`flex w-full cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 text-sm ${
+            archivo
               ? "border-emerald-300 bg-emerald-50 text-emerald-800"
               : "border-slate-300 bg-slate-50 text-slate-500 hover:border-marca-600"
           }`}
-          onClick={() => setArchivoSimulado(`documento-demo-${Date.now() % 1000}.pdf`)}
         >
-          {archivoSimulado ? <Paperclip size={22} /> : <FileUp size={22} />}
-          {archivoSimulado
-            ? `Archivo simulado adjuntado: ${archivoSimulado}`
-            : "Simular selección de archivo (ninguno se guarda realmente)"}
-        </button>
+          {archivo ? <Paperclip size={22} /> : <FileUp size={22} />}
+          <span className="text-center">
+            {archivo ? `Archivo seleccionado: ${archivo.name}` : "Haga clic para elegir un archivo (PDF, foto o Word)"}
+          </span>
+          <input
+            type="file"
+            className="hidden"
+            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+            onChange={(e) => setArchivo(e.target.files?.[0] ?? null)}
+          />
+        </label>
         <div>
           <label className="etiqueta">Tipo de documento *</label>
           <select className="campo" value={tipo} onChange={(e) => setTipo(e.target.value)}>
@@ -308,7 +330,6 @@ export function DocumentoModal({
               <option key={t}>{t}</option>
             ))}
           </select>
-          <p className="mt-1 text-[10px] text-amber-700">⚠ Lista provisional — validar con Proaudio</p>
         </div>
         <div>
           <label className="etiqueta">Título *</label>
@@ -318,14 +339,12 @@ export function DocumentoModal({
           <label className="etiqueta">Fecha del documento (del contenido, no de hoy)</label>
           <input type="date" className="campo" value={fechaDoc} onChange={(e) => setFechaDoc(e.target.value)} />
         </div>
-        <p className="text-[11px] text-slate-500">
-          El estado de digitalización de la ficha es meramente visual en esta versión (estados
-          simples; sin porcentajes — ver addendum, punto 7).
-        </p>
         {error && <p className="text-sm font-semibold text-rose-700">{error}</p>}
         <div className="flex justify-end gap-2 border-t border-slate-200 pt-3">
-          <button className="btn-secundario" onClick={onCerrar}>Cancelar</button>
-          <button className="btn-primario" onClick={guardar}>Guardar documento</button>
+          <button className="btn-secundario" onClick={cerrarYLimpiar} disabled={subiendo}>Cancelar</button>
+          <button className="btn-primario" onClick={guardar} disabled={subiendo}>
+            {subiendo ? "Subiendo…" : "Guardar documento"}
+          </button>
         </div>
       </div>
     </Modal>

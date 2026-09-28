@@ -139,6 +139,12 @@ export interface Documento {
   fechaCarga: string;
   cargadoPorId: string;
   observaciones?: string;
+  /**
+   * Ruta del archivo real dentro del bucket de Supabase Storage "documentos"
+   * (por ejemplo "PAC-00501/DOC-ABC123-cartilla.pdf"). Si no existe, el
+   * documento no tiene archivo real adjunto (registro solo de metadatos).
+   */
+  archivo_url?: string;
 }
 
 export type EstadoAudifono = "En uso" | "En reparación" | "Devuelto" | "Dado de baja";
